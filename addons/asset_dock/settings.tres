@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="AssetDockSettings" load_steps=2 format=3 uid="uid://860ndb48jgig"]
+
+[ext_resource type="Script" path="res://addons/asset_dock/settings.gd" id="1_jvau3"]
+
+[resource]
+script = ExtResource("1_jvau3")
+root_folder_path = "res://"
+file_types = Array[String](["tscn", "png"])
