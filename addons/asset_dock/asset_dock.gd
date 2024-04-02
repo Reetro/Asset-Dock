@@ -63,14 +63,18 @@ func get_all_files(path: String, file_ext: Array) -> Array:
 		var file_name = dir.get_next()
 		while file_name != "":
 			if dir.current_is_dir():
-				var new_path = path + "/" + file_name
-				var dic = {}
-				dic["folder_name"] = new_path
-				dic["folder_files"] = get_all_files(new_path, SETTINGS.file_types)
-				if dic["folder_files"].size() > 0:
-					files.append(dic)
+				if !file_name.contains(".godot"):
+					var new_path = path + "/" + file_name
+					var dic = {}
+					dic["folder_name"] = new_path
+					dic["folder_files"] = get_all_files(new_path, SETTINGS.file_types)
+					if SETTINGS.hide_empty_folders:
+						if dic["folder_files"].size() > 0:
+							files.append(dic)
+					else:
+						files.append(dic)
 			else:
-				if has_ext(file_name, file_ext):
+				if has_ext(file_name, file_ext) or file_ext.size() <= 0:
 					files.append(path + "/" + file_name)
 			file_name = dir.get_next()
 		return files
