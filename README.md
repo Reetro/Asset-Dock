@@ -3,7 +3,7 @@ This plugin adds a dock to the bottom of the screen. Similar to what you would s
 # Settings
 Settings can be found in addons/asset_dock you can configure the following settings
 
-root_folder_path - This is the root file path of Asset Dock it will for files in this directory and any files in folders
+root_folder_path - This is the root file path of Asset Dock it will load all files in this directory and any files in folders
 file_types - An array of file types that will be displayed in the dock if empty all file types will be shown
 hide_empty_folders - If true empty folders will not be shown in the dock
 
