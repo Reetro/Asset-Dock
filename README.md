@@ -12,5 +12,3 @@ Go to Editor->Docks->Filesystem there you can adjust the size of preview thumbna
 
 # How It Looks
 ![image](https://github.com/Reetro/Asset-Dock/assets/29167997/f8a22149-5417-4616-82b2-445a245c40fe)
-
-![image](https://github.com/Reetro/Asset-Dock/blob/main/Logo.png)
