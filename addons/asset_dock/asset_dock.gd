@@ -10,21 +10,35 @@ var editor: EditorInterface
 static var preview: EditorResourcePreview
 static var instance: AssetDock
 static var loaded: bool = false
-static var need_to_reload: bool = false
-
-func _ready():
-	editor = get_editor_interface()
-	preview = editor.get_resource_previewer()
+static var need_to_reload: bool = false	
 
 func _enter_tree():
+	editor = get_editor_interface()
+	preview = editor.get_resource_previewer()
 	asset_library_grid = ASSET_LIBRARY_GRID.instantiate()
+	SETTINGS.setting_changed.connect(on_settings_changed)
 	add_control_to_bottom_panel(asset_library_grid, "Asset Dock")
 	call_deferred("setup_library") # Need to wait for editor to finish loading before loading asset files
 
+func on_settings_changed():
+	print("test")
+	if DirAccess.dir_exists_absolute(SETTINGS.root_folder_path):
+		var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
+		asset_library_grid.setup_grid(all_assets)
+	else:
+		var error = "Failed to load asssets at path %s target path was not found"
+		var fianl = error % SETTINGS.root_folder_path
+		printerr(fianl)
+
 func setup_library():
-	var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
-	asset_library_grid.setup_grid(all_assets)
-	call_deferred("setup_signals") # Wait to setup these signals to avoid assets getting duplicated on 1st load
+	if DirAccess.dir_exists_absolute(SETTINGS.root_folder_path):
+		var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
+		asset_library_grid.setup_grid(all_assets)
+		call_deferred("setup_signals") # Wait to setup these signals to avoid assets getting duplicated on 1st load
+	else:
+		var error = "Failed to load asssets at path %s target path was not found"
+		var fianl = error % SETTINGS.root_folder_path
+		printerr(fianl)
 
 func setup_signals():
 	get_editor_interface().get_resource_filesystem().filesystem_changed.connect(filesystem_changed)
@@ -53,7 +67,7 @@ func _exit_tree():
 		asset_library_grid.queue_free()
 
 static func get_preview(scene: String, receiver: Object, function: StringName) -> void:
-	preview.queue_resource_preview(scene, receiver, function, null)
+	preview.queue_resource_preview(scene, receiver, function, {})
 
 func get_all_files(path: String, file_ext: Array) -> Array:
 	var files: Array = []
