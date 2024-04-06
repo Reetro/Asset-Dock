@@ -21,7 +21,6 @@ func _enter_tree():
 	call_deferred("setup_library") # Need to wait for editor to finish loading before loading asset files
 
 func on_settings_changed():
-	print("test")
 	if DirAccess.dir_exists_absolute(SETTINGS.root_folder_path):
 		var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
 		asset_library_grid.setup_grid(all_assets)
