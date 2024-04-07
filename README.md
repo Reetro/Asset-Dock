@@ -21,7 +21,7 @@ There is also an issue with godot where previews for tscn files will not generat
 Right now the dock just mimics what is shown in the file system you can't change files from the dock so here is list of planned features
 - Create folders in the dock
 - Delete files, rename files, move files inside of the dock
-- Drag files on to the dock to import them into the project like yoou would with the file system
+- Drag files on to the dock to import them into the project like you would with the file system
 
 # How It Looks
 ![image](https://github.com/Reetro/Asset-Dock/assets/29167997/f8a22149-5417-4616-82b2-445a245c40fe)
