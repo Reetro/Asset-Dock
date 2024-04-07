@@ -18,7 +18,7 @@ By default the root folder is set to res://. I recommend creatting a folder call
 There is also an issue with godot where previews for tscn files will not generate if the root folder is set res:// this is an issue am currently looking to. 
 
 # Planned features
-Right the dock just mimics what is shown in the file system you can't change files from the dock so here is list of planned features
+Right now the dock just mimics what is shown in the file system you can't change files from the dock so here is list of planned features
 - Create folders in the dock
 - Delete files, rename files, move files inside of the dock
 - Drag files on to the dock to import them into the project like yoou would with the file system
