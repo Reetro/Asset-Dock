@@ -22,6 +22,7 @@ Right now the dock just mimics what is shown in the file system you can't change
 - Create folders in the dock
 - Delete files, rename files, move files inside of the dock
 - Drag files on to the dock to import them into the project like you would with the file system
+- The ability to open files from the dock
 
 # How It Looks
 ![image](https://github.com/Reetro/Asset-Dock/assets/29167997/f8a22149-5417-4616-82b2-445a245c40fe)
