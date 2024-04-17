@@ -6,7 +6,7 @@ const ASSET_LIBRARY_GRID = preload("res://addons/asset_dock/asset_dock_grid.tscn
 const SETTINGS = preload("res://addons/asset_dock/settings.tres")
 
 var asset_library_grid: AssetDockGrid
-var editor: EditorInterface
+static var editor: EditorInterface
 static var preview: EditorResourcePreview
 static var instance: AssetDock
 static var loaded: bool = false
@@ -81,11 +81,7 @@ func get_all_files(path: String, file_ext: Array) -> Array:
 					var dic = {}
 					dic["folder_name"] = new_path
 					dic["folder_files"] = get_all_files(new_path, SETTINGS.file_types)
-					if SETTINGS.hide_empty_folders:
-						if dic["folder_files"].size() > 0:
-							files.append(dic)
-					else:
-						files.append(dic)
+					files.append(dic)
 			else:
 				if has_ext(file_name, file_ext) or file_ext.size() <= 0:
 					files.append(path + "/" + file_name)

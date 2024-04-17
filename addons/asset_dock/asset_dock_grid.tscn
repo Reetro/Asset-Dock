@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://bynipdkw3xf80"]
+[gd_scene load_steps=4 format=3 uid="uid://bynipdkw3xf80"]
 
 [ext_resource type="Script" path="res://addons/asset_dock/asset_dock_grid.gd" id="1_jtjrv"]
+[ext_resource type="PackedScene" uid="uid://b8tf32sp0o253" path="res://addons/asset_dock/gui_elements/create_folder_dialog.tscn" id="2_6kku3"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hec01"]
 bg_color = Color(0.215686, 0.215686, 0.215686, 1)
@@ -53,4 +54,16 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 12
 
+[node name="PopupMenu" type="PopupMenu" parent="MainPanel"]
+size = Vector2i(133, 40)
+item_count = 1
+item_0/text = "Create Folder"
+item_0/id = 0
+
+[node name="CreateFolderDialog" parent="." instance=ExtResource("2_6kku3")]
+visible = false
+
+[connection signal="gui_input" from="MainPanel" to="." method="_on_main_panel_gui_input"]
 [connection signal="text_changed" from="MainPanel/VBoxContainer/SearchContainer/LineEdit" to="." method="_on_line_edit_text_changed"]
+[connection signal="id_pressed" from="MainPanel/PopupMenu" to="." method="_on_popup_menu_id_pressed"]
+[connection signal="create_folder_clicked" from="CreateFolderDialog" to="." method="_on_create_folder_dialog_create_folder_clicked"]

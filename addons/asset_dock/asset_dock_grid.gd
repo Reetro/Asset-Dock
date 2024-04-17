@@ -12,8 +12,16 @@ var all_paths: Array
 var last_folder_path = SETTINGS.root_folder_path
 var back_button: AssetButton
 var all_buttons: Array[AssetButton]
+var last_mouse_pos: Vector2
 
 @onready var grid_container = $MainPanel/VBoxContainer/AssetContainer/ScrollContainer/GridContainer
+@onready var popup_menu = $MainPanel/PopupMenu
+@onready var create_folder_dialog = $CreateFolderDialog
+
+func _on_main_panel_gui_input(event):
+	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_RIGHT:
+		last_mouse_pos = get_global_mouse_position()
+		popup_menu.popup(Rect2(last_mouse_pos.x, last_mouse_pos.y, popup_menu.size.x, popup_menu.size.y))
 
 func setup_grid(all_assets: Array):
 	all_paths = all_assets
@@ -122,3 +130,28 @@ func get_assets_for_path(folder_path: String, asset_paths: Array) -> Array:
 					if result != []:
 						return result
 		return []
+
+func does_folder_exist(folder_path: String) -> bool:
+	var asset_paths = get_assets_for_path(last_folder_path, all_paths)
+	for asset_path in asset_paths:
+		if type_string(typeof(asset_path)) == "Dictionary":
+			if "folder_name" in asset_path and asset_path["folder_name"] == folder_path:
+				return true
+	return false
+
+func _on_popup_menu_id_pressed(id):
+	match (id):
+		0:
+			create_folder_dialog.popup_centered()
+
+func _on_create_folder_dialog_create_folder_clicked(folder_name):
+	if folder_name == "":
+		printerr("Failed to create folder no name was given")
+		return
+	var path = last_folder_path + "/" + folder_name
+	if !does_folder_exist(path):
+		DirAccess.make_dir_absolute(path)
+		AssetDock.editor.get_resource_filesystem().scan() # Refresh file system
+	else:
+		var message = "Failed to create folder at path %s folder already exists"
+		printerr(message % path)

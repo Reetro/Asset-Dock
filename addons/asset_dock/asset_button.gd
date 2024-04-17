@@ -4,23 +4,37 @@ class_name AssetButton
 
 signal on_asset_folder_button_clicked(paths: Array, folder_path: String)
 signal on_back_button_pressed(folder_path: String)
+signal on_context_menu_click(type: CONTEXT_MENU_TYPES, asset_path: String)
+
+enum CONTEXT_MENU_TYPES {
+	DELETE,
+	RENAME,
+	DUPLICATE
+}
+
+@onready var popup_menu = $PopupMenu
 
 var asset_name: String
 var asset_path: String
 var sub_files: Array
 var is_folder: bool = false
 var is_back_button: bool = false
+var last_mouse_pos: Vector2
 
 func _ready():
 	$Button.connect("gui_input", on_input)
 
 func on_input(event):
 	if event is InputEventMouseButton and event.is_pressed():
-		if event.double_click:
+		if event.double_click and event.button_index == MOUSE_BUTTON_LEFT:
 			if is_folder:
 				on_asset_folder_button_clicked.emit(sub_files, asset_path)
 			elif is_back_button:
 				on_back_button_pressed.emit(asset_path)
+		elif event.button_index == MOUSE_BUTTON_RIGHT and not is_back_button:
+			last_mouse_pos = get_global_mouse_position()
+			popup_menu.popup(Rect2(last_mouse_pos.x, last_mouse_pos.y, popup_menu.size.x, popup_menu.size.y)) 
+		
 
 func add_button(icon: Texture, name: String, path: String):
 	$Label.text = name
@@ -47,3 +61,14 @@ func add_back_button(icon: Texture, name: String, folder_path: String):
 	asset_path = folder_path
 	is_back_button = true
 	is_folder = false
+
+func _on_popup_menu_id_pressed(id):
+	if is_back_button:
+		return
+	match (id):
+		0:
+			on_context_menu_click.emit(CONTEXT_MENU_TYPES.DELETE, asset_path)
+		1:
+			on_context_menu_click.emit(CONTEXT_MENU_TYPES.RENAME, asset_path)
+		2:
+			on_context_menu_click.emit(CONTEXT_MENU_TYPES.DUPLICATE, asset_path)
