@@ -67,6 +67,9 @@ func on_context_menu_click(type: AssetButton.CONTEXT_MENU_TYPES, asset_path: Str
 		AssetButton.CONTEXT_MENU_TYPES.DUPLICATE:
 			pass
 
+func duplicate_asset(asset_path: String):
+	DirAccess.copy_absolute()
+
 func delete_asset(asset_path: String):
 	current_asset_path = asset_path
 	var message = "Are you sure wish to delete %s?"
