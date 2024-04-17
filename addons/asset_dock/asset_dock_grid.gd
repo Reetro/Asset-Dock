@@ -13,10 +13,12 @@ var last_folder_path = SETTINGS.root_folder_path
 var back_button: AssetButton
 var all_buttons: Array[AssetButton]
 var last_mouse_pos: Vector2
+var current_asset_path: String
 
 @onready var grid_container = $MainPanel/VBoxContainer/AssetContainer/ScrollContainer/GridContainer
 @onready var popup_menu = $MainPanel/PopupMenu
 @onready var create_folder_dialog = $CreateFolderDialog
+@onready var delete_confirmation_dialog = $DeleteConfirmationDialog
 
 func _on_main_panel_gui_input(event):
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_RIGHT:
@@ -44,6 +46,7 @@ func create_folder_icon(asset_paths: Array, folder_name: String, folder_path: St
 		asset_button.add_folder_button(FOLDER_BIG_THUMB, folder_name, asset_paths, folder_path)
 		grid_container.add_child(asset_button)
 		asset_button.on_asset_folder_button_clicked.connect(on_folder_button_clicked)
+		asset_button.on_context_menu_click.connect(on_context_menu_click)
 		all_buttons.append(asset_button)
 
 func create_asset_button(path: String, preview: Texture2D, thumbnail: Texture2D, userdata):
@@ -52,7 +55,27 @@ func create_asset_button(path: String, preview: Texture2D, thumbnail: Texture2D,
 		var name = path.get_file()
 		asset_button.add_button(preview, name, path)
 		grid_container.add_child(asset_button)
+		asset_button.on_context_menu_click.connect(on_context_menu_click)
 		all_buttons.append(asset_button)
+		
+func on_context_menu_click(type: AssetButton.CONTEXT_MENU_TYPES, asset_path: String):
+	match (type):
+		AssetButton.CONTEXT_MENU_TYPES.DELETE:
+			delete_asset(asset_path)
+		AssetButton.CONTEXT_MENU_TYPES.RENAME:
+			pass
+		AssetButton.CONTEXT_MENU_TYPES.DUPLICATE:
+			pass
+
+func delete_asset(asset_path: String):
+	current_asset_path = asset_path
+	var message = "Are you sure wish to delete %s?"
+	delete_confirmation_dialog.get_label().text = message % asset_path
+	delete_confirmation_dialog.popup_centered()
+
+func _on_delete_confirmation_dialog_confirmed():
+	DirAccess.remove_absolute(current_asset_path)
+	AssetDock.editor.get_resource_filesystem().scan() # Refresh file system
 
 func _on_line_edit_text_changed(new_text: String):
 	if new_text.is_empty():
