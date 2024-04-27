@@ -10,7 +10,9 @@ static var editor: EditorInterface
 static var preview: EditorResourcePreview
 static var instance: AssetDock
 static var loaded: bool = false
-static var need_to_reload: bool = false	
+static var need_to_reload: bool = false
+static var refresh_local_folder: bool = false
+static var current_folder_path: String
 
 func _enter_tree():
 	editor = get_editor_interface()
@@ -50,15 +52,25 @@ func set_loaded():
 func filesystem_changed():
 	if loaded:
 		if need_to_reload: # I hate this hack so much only I could get it to not trigger multiple times when 1st loaded in
-			var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
-			asset_library_grid.setup_grid(all_assets)
+			if refresh_local_folder:
+				refresh_local_folder = false
+				var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
+				asset_library_grid.refresh_current_path(current_folder_path, all_assets)
+			else:
+				var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
+				asset_library_grid.setup_grid(all_assets)
 		else:
 			need_to_reload = true
 
 func resources_reimported(resources: PackedStringArray):
 	if loaded:
-		var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
-		asset_library_grid.setup_grid(all_assets)
+		if refresh_local_folder:
+			refresh_local_folder = false
+			var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
+			asset_library_grid.refresh_current_path(current_folder_path, all_assets)
+		else:
+			var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
+			asset_library_grid.setup_grid(all_assets)
 
 func _exit_tree():
 	if asset_library_grid:
@@ -68,7 +80,7 @@ func _exit_tree():
 static func get_preview(scene: String, receiver: Object, function: StringName) -> void:
 	preview.queue_resource_preview(scene, receiver, function, {})
 
-func get_all_files(path: String, file_ext: Array) -> Array:
+static func get_all_files(path: String, file_ext: Array) -> Array:
 	var files: Array = []
 	var dir = DirAccess.open(path)
 	if dir:
@@ -91,7 +103,7 @@ func get_all_files(path: String, file_ext: Array) -> Array:
 		print("An error occurred when trying to access the path.")
 		return []
 
-func has_ext(file_name: String, file_ext: Array) -> bool:
+static func has_ext(file_name: String, file_ext: Array) -> bool:
 	var result = false
 	for ext in file_ext:
 		if file_name.contains(ext) and !file_name.contains(".import"):

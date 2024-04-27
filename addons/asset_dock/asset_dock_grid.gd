@@ -30,6 +30,15 @@ func setup_grid(all_assets: Array):
 	clear_files()
 	create_icons(all_assets)
 	
+func refresh_current_path(path: String, all_assets: Array):
+	all_assets = all_assets
+	var assets_for_path = AssetDock.get_all_files(path, SETTINGS.file_types)
+	if assets_for_path.size() <= 0:
+		clear_files(true)
+	else:
+		clear_old_files()
+		create_icons(assets_for_path)
+	
 func create_icons(asset_paths: Array, create_folder_icons: bool = true):
 	for asset_path in asset_paths:
 		if asset_path != null and type_string(typeof(asset_path)) != "Dictionary":
@@ -67,9 +76,6 @@ func on_context_menu_click(type: AssetButton.CONTEXT_MENU_TYPES, asset_path: Str
 		AssetButton.CONTEXT_MENU_TYPES.DUPLICATE:
 			pass
 
-func duplicate_asset(asset_path: String):
-	DirAccess.copy_absolute()
-
 func delete_asset(asset_path: String):
 	current_asset_path = asset_path
 	var message = "Are you sure wish to delete %s?"
@@ -78,6 +84,8 @@ func delete_asset(asset_path: String):
 
 func _on_delete_confirmation_dialog_confirmed():
 	DirAccess.remove_absolute(current_asset_path)
+	AssetDock.refresh_local_folder = true
+	AssetDock.current_folder_path = last_folder_path
 	AssetDock.editor.get_resource_filesystem().scan() # Refresh file system
 
 func _on_line_edit_text_changed(new_text: String):
@@ -103,11 +111,23 @@ func on_folder_button_clicked(paths: Array, folder_path: String):
 	create_back_button()
 	create_icons(paths)
 
-func clear_files():
+func clear_files(skip_back_button: bool = false):
 	all_buttons.clear()
 	for i in range(grid_container.get_children().size()):
 		var child = grid_container.get_child(i)
-		child.queue_free()
+		var button = child as AssetButton
+		if button.is_back_button and skip_back_button:
+			continue
+		else:
+			child.queue_free()
+
+func clear_old_files():
+	for i in range(grid_container.get_children().size()):
+		var child = grid_container.get_child(i)
+		var button = child as AssetButton
+		if button:
+			if not does_folder_exist(button.asset_path) and not button.is_back_button:
+				button.queue_free()
 
 func create_back_button():
 	back_button = ASSET_BUTTON.instantiate() as AssetButton
@@ -132,8 +152,9 @@ func on_back_button_press(folder_path: String):
 
 func created_button_for_path(path: String) -> bool:
 	for button in all_buttons:
-		if button.asset_path == path:
-			return true
+		if is_instance_valid(button):
+			if button.asset_path == path:
+				return true
 	return false
 
 func get_last_path(folder_path: String) -> String:
@@ -158,7 +179,8 @@ func get_assets_for_path(folder_path: String, asset_paths: Array) -> Array:
 		return []
 
 func does_folder_exist(folder_path: String) -> bool:
-	var asset_paths = get_assets_for_path(last_folder_path, all_paths)
+	var paths = AssetDock.get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types) # This maybe slow will have to stress test this cause getting all the assets at over and over again will probably slow things down
+	var asset_paths = get_assets_for_path(last_folder_path, paths)
 	for asset_path in asset_paths:
 		if type_string(typeof(asset_path)) == "Dictionary":
 			if "folder_name" in asset_path and asset_path["folder_name"] == folder_path:
@@ -169,6 +191,9 @@ func _on_popup_menu_id_pressed(id):
 	match (id):
 		0:
 			create_folder_dialog.popup_centered()
+		1:
+			var all_assets = AssetDock.get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
+			refresh_current_path(last_folder_path, all_assets)
 
 func _on_create_folder_dialog_create_folder_clicked(folder_name):
 	if folder_name == "":
@@ -177,6 +202,8 @@ func _on_create_folder_dialog_create_folder_clicked(folder_name):
 	var path = last_folder_path + "/" + folder_name
 	if !does_folder_exist(path):
 		DirAccess.make_dir_absolute(path)
+		AssetDock.refresh_local_folder = true
+		AssetDock.current_folder_path = last_folder_path
 		AssetDock.editor.get_resource_filesystem().scan() # Refresh file system
 	else:
 		var message = "Failed to create folder at path %s folder already exists"
