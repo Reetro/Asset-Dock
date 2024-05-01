@@ -83,7 +83,7 @@ func delete_asset(asset_path: String):
 	delete_confirmation_dialog.popup_centered()
 
 func _on_delete_confirmation_dialog_confirmed():
-	DirAccess.remove_absolute(current_asset_path)
+	OS.move_to_trash(ProjectSettings.globalize_path(current_asset_path))
 	AssetDock.refresh_local_folder = true
 	AssetDock.current_folder_path = last_folder_path
 	AssetDock.editor.get_resource_filesystem().scan() # Refresh file system
@@ -126,8 +126,11 @@ func clear_old_files():
 		var child = grid_container.get_child(i)
 		var button = child as AssetButton
 		if button:
-			if not does_folder_exist(button.asset_path) and not button.is_back_button:
+			if not does_folder_exist(button.asset_path) and button.is_folder:
 				button.queue_free()
+			elif not button.is_folder and not button.is_back_button: # regular file
+				if not does_file_exist(button.asset_path):
+					button.queue_free()
 
 func create_back_button():
 	back_button = ASSET_BUTTON.instantiate() as AssetButton
@@ -179,11 +182,20 @@ func get_assets_for_path(folder_path: String, asset_paths: Array) -> Array:
 		return []
 
 func does_folder_exist(folder_path: String) -> bool:
-	var paths = AssetDock.get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types) # This maybe slow will have to stress test this cause getting all the assets at over and over again will probably slow things down
+	var paths = AssetDock.get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types) # This maybe slow will have to stress test this cause getting all the assets over and over again will probably slow things down
 	var asset_paths = get_assets_for_path(last_folder_path, paths)
 	for asset_path in asset_paths:
 		if type_string(typeof(asset_path)) == "Dictionary":
 			if "folder_name" in asset_path and asset_path["folder_name"] == folder_path:
+				return true
+	return false
+	
+func does_file_exist(file_path: String) -> bool:
+	var paths = AssetDock.get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types) # This maybe slow will have to stress test this cause getting all the assets over and over again will probably slow things down
+	var asset_paths = get_assets_for_path(last_folder_path, paths)
+	for asset_path in asset_paths:
+		if type_string(typeof(asset_path)) != "Dictionary":
+			if file_path == asset_path:
 				return true
 	return false
 
@@ -191,9 +203,6 @@ func _on_popup_menu_id_pressed(id):
 	match (id):
 		0:
 			create_folder_dialog.popup_centered()
-		1:
-			var all_assets = AssetDock.get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
-			refresh_current_path(last_folder_path, all_assets)
 
 func _on_create_folder_dialog_create_folder_clicked(folder_name):
 	if folder_name == "":
