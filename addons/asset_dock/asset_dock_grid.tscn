@@ -15,16 +15,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_jtjrv")
 
-[node name="MainPanel" type="Panel" parent="."]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_hec01")
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MainPanel"]
+[node name="HSplitContainer" type="HSplitContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,29 +23,66 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="SearchContainer" type="HBoxContainer" parent="MainPanel/VBoxContainer"]
+[node name="FileListPanel" type="Panel" parent="HSplitContainer"]
+custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 
-[node name="LineEdit" type="LineEdit" parent="MainPanel/VBoxContainer/SearchContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/FileListPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TreeViewLineEdit" type="LineEdit" parent="HSplitContainer/FileListPanel/VBoxContainer"]
+layout_mode = 2
+placeholder_text = "Search For Folder"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="HSplitContainer/FileListPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Tree" type="Tree" parent="HSplitContainer/FileListPanel/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MainPanel" type="Panel" parent="HSplitContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hec01")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/MainPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SearchContainer" type="HBoxContainer" parent="HSplitContainer/MainPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="LineEdit" type="LineEdit" parent="HSplitContainer/MainPanel/VBoxContainer/SearchContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Search For Asset"
 
-[node name="AssetContainer" type="HBoxContainer" parent="MainPanel/VBoxContainer"]
+[node name="AssetContainer" type="HBoxContainer" parent="HSplitContainer/MainPanel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ScrollContainer" type="ScrollContainer" parent="MainPanel/VBoxContainer/AssetContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="HSplitContainer/MainPanel/VBoxContainer/AssetContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="GridContainer" type="GridContainer" parent="MainPanel/VBoxContainer/AssetContainer/ScrollContainer"]
+[node name="GridContainer" type="GridContainer" parent="HSplitContainer/MainPanel/VBoxContainer/AssetContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 12
 
-[node name="PopupMenu" type="PopupMenu" parent="MainPanel"]
+[node name="PopupMenu" type="PopupMenu" parent="HSplitContainer/MainPanel"]
 size = Vector2i(133, 40)
 item_count = 1
 item_0/text = "Create Folder"
@@ -67,8 +95,8 @@ dialog_text = "Are you sure wish to delete this asset?"
 [node name="CreateFolderDialog" parent="." instance=ExtResource("2_6kku3")]
 visible = false
 
-[connection signal="gui_input" from="MainPanel" to="." method="_on_main_panel_gui_input"]
-[connection signal="text_changed" from="MainPanel/VBoxContainer/SearchContainer/LineEdit" to="." method="_on_line_edit_text_changed"]
-[connection signal="id_pressed" from="MainPanel/PopupMenu" to="." method="_on_popup_menu_id_pressed"]
+[connection signal="gui_input" from="HSplitContainer/MainPanel" to="." method="_on_main_panel_gui_input"]
+[connection signal="text_changed" from="HSplitContainer/MainPanel/VBoxContainer/SearchContainer/LineEdit" to="." method="_on_line_edit_text_changed"]
+[connection signal="id_pressed" from="HSplitContainer/MainPanel/PopupMenu" to="." method="_on_popup_menu_id_pressed"]
 [connection signal="confirmed" from="DeleteConfirmationDialog" to="." method="_on_delete_confirmation_dialog_confirmed"]
 [connection signal="create_folder_clicked" from="CreateFolderDialog" to="." method="_on_create_folder_dialog_create_folder_clicked"]

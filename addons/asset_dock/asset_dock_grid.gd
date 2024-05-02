@@ -14,11 +14,14 @@ var back_button: AssetButton
 var all_buttons: Array[AssetButton]
 var last_mouse_pos: Vector2
 var current_asset_path: String
+var created_tree: bool = false
+var root: TreeItem
 
-@onready var grid_container = $MainPanel/VBoxContainer/AssetContainer/ScrollContainer/GridContainer
-@onready var popup_menu = $MainPanel/PopupMenu
+@onready var grid_container = $HSplitContainer/MainPanel/VBoxContainer/AssetContainer/ScrollContainer/GridContainer
+@onready var popup_menu = $HSplitContainer/MainPanel/PopupMenu
 @onready var create_folder_dialog = $CreateFolderDialog
 @onready var delete_confirmation_dialog = $DeleteConfirmationDialog
+@onready var tree = $HSplitContainer/FileListPanel/VBoxContainer/ScrollContainer/Tree
 
 func _on_main_panel_gui_input(event):
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_RIGHT:
@@ -29,7 +32,28 @@ func setup_grid(all_assets: Array):
 	all_paths = all_assets
 	clear_files()
 	create_icons(all_assets)
+	setup_tree_view(all_assets)
+
+func setup_tree_view(all_assets: Array):
+	if not created_tree:
+		root = tree.create_item()
+		root.set_text(0, SETTINGS.root_folder_path)
+		root.set_metadata(0, SETTINGS.root_folder_path)
+		created_tree = true
+	var folders: Array = []
+	# Get only folder paths from all assets
+	for asset_path in all_assets:
+		if type_string(typeof(asset_path)) == "Dictionary":
+			folders.append(asset_path)
+	create_tree_items(folders) # Create the actual tree view
 	
+func create_tree_items(folders: Array):
+	for folder in folders: # Create tree view
+		var folder_name = folder["folder_name"].get_file()
+		var section_item = tree.create_item(root) as TreeItem
+		section_item.set_text(0, folder_name)
+		section_item.set_metadata(0, folder["folder_name"])
+
 func refresh_current_path(path: String, all_assets: Array):
 	all_assets = all_assets
 	var assets_for_path = AssetDock.get_all_files(path, SETTINGS.file_types)
