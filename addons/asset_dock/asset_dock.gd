@@ -100,7 +100,7 @@ static func get_all_files(path: String, file_ext: Array) -> Array:
 			file_name = dir.get_next()
 		return files
 	else:
-		print("An error occurred when trying to access the path.")
+		printerr("An error occurred when trying to access path " + path)
 		return []
 
 static func has_ext(file_name: String, file_ext: Array) -> bool:

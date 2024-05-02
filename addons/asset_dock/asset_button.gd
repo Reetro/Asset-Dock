@@ -6,6 +6,8 @@ signal on_asset_folder_button_clicked(paths: Array, folder_path: String)
 signal on_back_button_pressed(folder_path: String)
 signal on_context_menu_click(type: CONTEXT_MENU_TYPES, asset_path: String)
 
+const SETTINGS = preload("res://addons/asset_dock/settings.tres")
+
 enum CONTEXT_MENU_TYPES {
 	DELETE,
 	RENAME,
@@ -28,6 +30,8 @@ func on_input(event):
 	if event is InputEventMouseButton and event.is_pressed():
 		if event.double_click and event.button_index == MOUSE_BUTTON_LEFT:
 			if is_folder:
+				if sub_files.size() <= 0:
+					sub_files = AssetDock.get_all_files(asset_path, SETTINGS.file_types) # double check there are no files here
 				on_asset_folder_button_clicked.emit(sub_files, asset_path)
 			elif is_back_button:
 				on_back_button_pressed.emit(asset_path)
