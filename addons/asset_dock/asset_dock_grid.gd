@@ -6,6 +6,7 @@ const ASSET_BUTTON = preload("res://addons/asset_dock/asset_button.tscn")
 const FOLDER_BIG_THUMB = preload("res://addons/asset_dock/FolderBigThumb.svg")
 const BACK = preload("res://addons/asset_dock/Back.png")
 const SETTINGS = preload("res://addons/asset_dock/settings.tres")
+const FOLDER = preload("res://addons/asset_dock/Folder.svg")
 
 var scene_spawn: String
 var all_paths: Array
@@ -39,20 +40,30 @@ func setup_tree_view(all_assets: Array):
 		root = tree.create_item()
 		root.set_text(0, SETTINGS.root_folder_path)
 		root.set_metadata(0, SETTINGS.root_folder_path)
+		root.set_icon(0, FOLDER)
 		created_tree = true
-	var folders: Array = []
 	# Get only folder paths from all assets
+	var folders = get_only_folders_from_path(all_assets)
+	create_tree_items(folders, root) # Create the actual tree view
+	
+func create_tree_items(folders: Array, root_item: TreeItem):
+	for folder in folders: # Create tree view
+		var folder_name = folder["folder_name"].get_file()
+		var section_item = tree.create_item(root_item) as TreeItem
+		section_item.set_text(0, folder_name)
+		section_item.set_metadata(0, folder["folder_name"])
+		section_item.set_icon(0, FOLDER)
+		section_item.collapsed = true
+		if folder["folder_files"].size() >= 1:
+			var sub_folders = get_only_folders_from_path(folder["folder_files"])
+			create_tree_items(sub_folders, section_item)
+
+func get_only_folders_from_path(all_assets: Array) -> Array:
+	var folders: Array = []
 	for asset_path in all_assets:
 		if type_string(typeof(asset_path)) == "Dictionary":
 			folders.append(asset_path)
-	create_tree_items(folders) # Create the actual tree view
-	
-func create_tree_items(folders: Array):
-	for folder in folders: # Create tree view
-		var folder_name = folder["folder_name"].get_file()
-		var section_item = tree.create_item(root) as TreeItem
-		section_item.set_text(0, folder_name)
-		section_item.set_metadata(0, folder["folder_name"])
+	return folders
 
 func refresh_current_path(path: String, all_assets: Array):
 	all_assets = all_assets
@@ -62,6 +73,9 @@ func refresh_current_path(path: String, all_assets: Array):
 	else:
 		clear_old_files()
 		create_icons(assets_for_path)
+	# Get only folder paths from all assets
+	var folders = get_only_folders_from_path(all_assets)
+	create_tree_items(folders, root) # Create the actual tree view
 	
 func create_icons(asset_paths: Array, create_folder_icons: bool = true):
 	for asset_path in asset_paths:

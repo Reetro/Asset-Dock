@@ -47,6 +47,7 @@ size_flags_vertical = 3
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+allow_search = false
 
 [node name="MainPanel" type="Panel" parent="HSplitContainer"]
 layout_mode = 2
