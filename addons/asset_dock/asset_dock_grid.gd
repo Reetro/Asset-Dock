@@ -17,6 +17,8 @@ var last_mouse_pos: Vector2
 var current_asset_path: String
 var created_tree: bool = false
 var root: TreeItem
+var collapsed_items: Array[TreeItem] = []
+var creating_items: bool = false
 
 @onready var grid_container = $HSplitContainer/MainPanel/VBoxContainer/AssetContainer/ScrollContainer/GridContainer
 @onready var popup_menu = $HSplitContainer/MainPanel/PopupMenu
@@ -31,7 +33,7 @@ func _on_main_panel_gui_input(event):
 
 func setup_grid(all_assets: Array):
 	all_paths = all_assets
-	clear_files()
+	clear_files(false, true)
 	create_icons(all_assets)
 	setup_tree_view(all_assets)
 
@@ -47,16 +49,71 @@ func setup_tree_view(all_assets: Array):
 	create_tree_items(folders, root) # Create the actual tree view
 	
 func create_tree_items(folders: Array, root_item: TreeItem):
+	creating_items = true
 	for folder in folders: # Create tree view
 		var folder_name = folder["folder_name"].get_file()
-		var section_item = tree.create_item(root_item) as TreeItem
-		section_item.set_text(0, folder_name)
-		section_item.set_metadata(0, folder["folder_name"])
-		section_item.set_icon(0, FOLDER)
-		section_item.collapsed = true
-		if folder["folder_files"].size() >= 1:
-			var sub_folders = get_only_folders_from_path(folder["folder_files"])
-			create_tree_items(sub_folders, section_item)
+		if not does_tree_item_exist(folder["folder_name"], root_item):
+			var section_item = tree.create_item(root_item) as TreeItem
+			section_item.set_text(0, folder_name)
+			section_item.set_metadata(0, folder["folder_name"])
+			section_item.set_icon(0, FOLDER)
+			section_item.collapsed = true
+			if folder["folder_files"].size() >= 1:
+				var sub_folders = get_only_folders_from_path(folder["folder_files"])
+				create_tree_items(sub_folders, section_item)
+	creating_items = false
+
+func update_tree_items(folders: Array, root_item: TreeItem, tree: Tree):
+	creating_items = true
+	# Update or add folders
+	for folder in folders:
+		if typeof(folder) == TYPE_DICTIONARY:
+			var folder_name = folder["folder_name"]
+			var existing_item = find_tree_item(folder_name, root_item.get_children())
+			if existing_item:
+				# Update existing folder
+				update_tree_items(folder["folder_files"], existing_item, tree)
+			else:
+				# Create new folder using the provided tree
+				if root_item.get_tree() == tree:
+					var new_item = tree.create_item(root_item) as TreeItem
+					if new_item:
+						new_item.set_text(0, folder_name.get_file())
+						new_item.set_metadata(0, folder_name)
+						new_item.set_icon(0, FOLDER)
+						new_item.collapsed = true
+						if folder["folder_files"].size() >= 1:
+							update_tree_items(folder["folder_files"], new_item, tree)
+					else:
+						printerr("Error: Failed to create new tree item.")
+				else:
+					printerr("Error: Root item belongs to a different tree than the one provided.")
+	# Expand or collapse items based on the stored collapsed items
+	for item in collapsed_items:
+		item.collapsed = false
+	creating_items = false
+
+func find_tree_item(folder_name: String, items: Array) -> TreeItem:
+	for item in items:
+		if item.get_metadata(0) == folder_name:
+			return item
+	return null
+
+func does_tree_item_exist(folder_name: String, root_item: TreeItem) -> bool:
+	var children = root_item.get_children()
+	for chld in children:
+		var folder = chld.get_metadata(0) as String
+		if folder_name == folder:
+			return true
+	return false
+
+func get_tree_item_for_path(folder_path: String) -> TreeItem:
+	for child in root.get_children():
+		var path = child.get_metadata(0)
+		if path == folder_path:
+			return child
+	printerr("Failed to find tree item for path " + folder_path)
+	return null
 
 func get_only_folders_from_path(all_assets: Array) -> Array:
 	var folders: Array = []
@@ -74,8 +131,8 @@ func refresh_current_path(path: String, all_assets: Array):
 		clear_old_files()
 		create_icons(assets_for_path)
 	# Get only folder paths from all assets
-	var folders = get_only_folders_from_path(all_assets)
-	create_tree_items(folders, root) # Create the actual tree view
+	var folders = get_only_folders_from_path(AssetDock.get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types))
+	update_tree_items(folders, root, tree) # Create the actual tree view
 	
 func create_icons(asset_paths: Array, create_folder_icons: bool = true):
 	for asset_path in asset_paths:
@@ -149,7 +206,7 @@ func on_folder_button_clicked(paths: Array, folder_path: String):
 	create_back_button()
 	create_icons(paths)
 
-func clear_files(skip_back_button: bool = false):
+func clear_files(skip_back_button: bool = false, clear_tree: bool = false):
 	all_buttons.clear()
 	for i in range(grid_container.get_children().size()):
 		var child = grid_container.get_child(i)
@@ -158,6 +215,10 @@ func clear_files(skip_back_button: bool = false):
 			continue
 		else:
 			child.queue_free()
+	if clear_tree and created_tree:
+		var tree_items = root.get_children()
+		for current in tree_items:
+			root.remove_child(current)
 
 func clear_old_files():
 	for i in range(grid_container.get_children().size()):
@@ -169,6 +230,16 @@ func clear_old_files():
 			elif not button.is_folder and not button.is_back_button: # regular file
 				if not does_file_exist(button.asset_path):
 					button.queue_free()
+	clear_old_folders_from_tree(tree.get_root())
+
+func clear_old_folders_from_tree(section_item: TreeItem):
+	var children = section_item.get_children()
+	for child in children:
+		var folder_path = child.get_metadata(0) as String;
+		if not does_folder_exist(folder_path):
+			section_item.remove_child(child)
+		elif child.get_children().size() > 0:
+			clear_old_folders_from_tree(child)
 
 func create_back_button():
 	back_button = ASSET_BUTTON.instantiate() as AssetButton
@@ -255,3 +326,11 @@ func _on_create_folder_dialog_create_folder_clicked(folder_name):
 	else:
 		var message = "Failed to create folder at path %s folder already exists"
 		printerr(message % path)
+
+func _on_tree_item_collapsed(item):
+	if not creating_items:
+		# Update the collapsed items array
+		if item in collapsed_items:
+			collapsed_items.erase(item)
+		else:
+			collapsed_items.append(item)

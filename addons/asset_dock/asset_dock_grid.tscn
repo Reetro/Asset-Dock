@@ -24,7 +24,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="FileListPanel" type="Panel" parent="HSplitContainer"]
-custom_minimum_size = Vector2(200, 0)
+custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/FileListPanel"]
@@ -96,6 +96,7 @@ dialog_text = "Are you sure wish to delete this asset?"
 [node name="CreateFolderDialog" parent="." instance=ExtResource("2_6kku3")]
 visible = false
 
+[connection signal="item_collapsed" from="HSplitContainer/FileListPanel/VBoxContainer/ScrollContainer/Tree" to="." method="_on_tree_item_collapsed"]
 [connection signal="gui_input" from="HSplitContainer/MainPanel" to="." method="_on_main_panel_gui_input"]
 [connection signal="text_changed" from="HSplitContainer/MainPanel/VBoxContainer/SearchContainer/LineEdit" to="." method="_on_line_edit_text_changed"]
 [connection signal="id_pressed" from="HSplitContainer/MainPanel/PopupMenu" to="." method="_on_popup_menu_id_pressed"]
