@@ -377,41 +377,12 @@ func create_assets_for_path(path: String):
 		create_icons(assets_for_path)
 
 func _on_popup_menu_about_to_popup():
-	reset_line_edit()
-	reset_grid(AssetDock.get_all_files(last_folder_path, SETTINGS.file_types))
+	if line_edit.text != "":
+		reset_line_edit()
+		reset_grid(AssetDock.get_all_files(last_folder_path, SETTINGS.file_types))
 
 func _on_tree_view_line_edit_text_changed(new_text: String):
 	var root_item = tree.get_root()
 	var children = root_item.get_children()
 	var current_text = new_text.to_lower()
-	if current_text == "":
-		for child in children:
-			child.visible = true
-			var child_items = child.get_children()
-			for child_child in child_items:
-				child_child.visible = true
-	else:
-		for child in children:
-			var current = child as TreeItem
-			if current.collapsed:
-				current.collapsed = false
-			var tree_item_name = current.get_text(0).to_lower()
-			if current.get_child_count() <= 0 or !has_visiable_child(current):
-				current.visible = false
-			else:
-				var child_items = current.get_children()
-				for child_child in child_items:
-					var tree_child_name = child_child.get_text(0).to_lower()
-					if !tree_child_name.contains(current_text):
-						child_child.visible = false
-
-func has_visiable_child(tree_item: TreeItem) -> bool:
-	if tree_item.get_child_count() > 0:
-		var children = tree_item.get_children()
-		for child in children:
-			var current = child as TreeItem
-			if current.visible:
-				return true
-		return false
-	else:
-		return false
+	# TODO make this work
