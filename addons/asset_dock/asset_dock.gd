@@ -25,7 +25,7 @@ func _enter_tree():
 func on_settings_changed():
 	if DirAccess.dir_exists_absolute(SETTINGS.root_folder_path):
 		var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
-		asset_library_grid.setup_grid(all_assets)
+		asset_library_grid.setup_grid(all_assets, true)
 	else:
 		var error = "Failed to load asssets at path %s target path was not found"
 		var fianl = error % SETTINGS.root_folder_path

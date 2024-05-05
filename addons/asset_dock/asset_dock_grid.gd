@@ -32,25 +32,33 @@ func _on_main_panel_gui_input(event):
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_RIGHT:
 		last_mouse_pos = get_global_mouse_position()
 		popup_menu.popup(Rect2(last_mouse_pos.x, last_mouse_pos.y, popup_menu.size.x, popup_menu.size.y))
+	elif event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
+		tree.deselect_all()
+		tree.release_focus()
+		tree_view_line_edit.release_focus()
+		line_edit.release_focus()
 
-func setup_grid(all_assets: Array):
+func setup_grid(all_assets: Array, reset_tree_view_name: bool = false):
 	all_paths = all_assets
 	clear_files(false, true)
 	create_icons(all_assets)
-	setup_tree_view(all_assets)
+	setup_tree_view(all_assets, reset_tree_view_name)
 
 func reset_grid(all_assets: Array):
 	all_paths = all_assets
 	clear_files()
 	create_icons(all_assets)
 
-func setup_tree_view(all_assets: Array):
+func setup_tree_view(all_assets: Array, reset_tree_view_name: bool):
 	if not created_tree:
 		root = tree.create_item()
 		root.set_text(0, SETTINGS.root_folder_path)
 		root.set_metadata(0, SETTINGS.root_folder_path)
 		root.set_icon(0, FOLDER)
 		created_tree = true
+	elif created_tree and reset_tree_view_name:
+		root.set_text(0, SETTINGS.root_folder_path)
+		root.set_metadata(0, SETTINGS.root_folder_path)
 	# Get only folder paths from all assets
 	var folders = get_only_folders_from_path(all_assets)
 	create_tree_items(folders, root) # Create the actual tree view
@@ -382,7 +390,46 @@ func _on_popup_menu_about_to_popup():
 		reset_grid(AssetDock.get_all_files(last_folder_path, SETTINGS.file_types))
 
 func _on_tree_view_line_edit_text_changed(new_text: String):
-	var root_item = tree.get_root()
-	var children = root_item.get_children()
-	var current_text = new_text.to_lower()
-	# TODO make this work
+	if new_text == "":
+		# Show all items starting from the root item
+		var root_item = tree.get_root()
+		show_items(root_item)
+	else:
+		var root_item = tree.get_root()
+		var current_text = new_text.to_lower()
+		hide_non_matching_children(root_item, current_text)
+
+func hide_non_matching_children(item: TreeItem, search_text: String):
+	# Iterate through the children of the current item
+	for i in range(item.get_child_count()):
+		var child = item.get_child(i)
+		# Check if the child's text matches the search text
+		var child_text = child.get_text(0).to_lower()
+		if child_text.find(search_text) == -1:
+			# Hide the child if it doesn't match the search text
+			child.visible = false
+		else:
+			# Show the parent items of the matching child
+			show_parent_items(child)
+		# Recursively hide non-matching children of the current child
+		hide_non_matching_children(child, search_text)
+
+func show_items(item: TreeItem):
+	# Show the current item
+	item.visible = true
+	if item != tree.get_root():
+		item.collapsed = true
+	# Show all children recursively
+	for i in range(item.get_child_count()):
+		var child = item.get_child(i)
+		show_items(child)
+
+func show_parent_items(item: TreeItem):
+	# Show the current item
+	item.visible = true
+	item.collapsed = false
+	# Show all parent items recursively
+	var parent = item.get_parent()
+	while parent:
+		parent.visible = true
+		parent = parent.get_parent()
