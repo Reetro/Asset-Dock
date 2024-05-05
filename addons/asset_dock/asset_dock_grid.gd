@@ -25,6 +25,8 @@ var creating_items: bool = false
 @onready var create_folder_dialog = $CreateFolderDialog
 @onready var delete_confirmation_dialog = $DeleteConfirmationDialog
 @onready var tree = $HSplitContainer/FileListPanel/VBoxContainer/ScrollContainer/Tree
+@onready var tree_view_line_edit = $HSplitContainer/FileListPanel/VBoxContainer/TreeViewLineEdit
+@onready var line_edit = $HSplitContainer/MainPanel/VBoxContainer/SearchContainer/LineEdit
 
 func _on_main_panel_gui_input(event):
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_RIGHT:
@@ -36,6 +38,11 @@ func setup_grid(all_assets: Array):
 	clear_files(false, true)
 	create_icons(all_assets)
 	setup_tree_view(all_assets)
+
+func reset_grid(all_assets: Array):
+	all_paths = all_assets
+	clear_files()
+	create_icons(all_assets)
 
 func setup_tree_view(all_assets: Array):
 	if not created_tree:
@@ -65,6 +72,18 @@ func create_tree_items(folders: Array, root_item: TreeItem):
 
 func update_tree_items(folders: Array, root_item: TreeItem, tree: Tree):
 	creating_items = true
+	# Track items that are still present in the tree
+	var present_items: Array[TreeItem] = []
+	for folder in folders:
+		if typeof(folder) == TYPE_DICTIONARY:
+			var folder_name = folder["folder_name"]
+			var existing_item = find_tree_item(folder_name, root_item.get_children())
+			if existing_item:
+				present_items.append(existing_item) # Add the item to the list of present items
+	# Remove items that are no longer present in the folders array
+	for child in root_item.get_children():
+		if child not in present_items:
+			root_item.remove_child(child)
 	# Update or add folders
 	for folder in folders:
 		if typeof(folder) == TYPE_DICTIONARY:
@@ -88,10 +107,10 @@ func update_tree_items(folders: Array, root_item: TreeItem, tree: Tree):
 						printerr("Error: Failed to create new tree item.")
 				else:
 					printerr("Error: Root item belongs to a different tree than the one provided.")
+			creating_items = false
 	# Expand or collapse items based on the stored collapsed items
 	for item in collapsed_items:
 		item.collapsed = false
-	creating_items = false
 
 func find_tree_item(folder_name: String, items: Array) -> TreeItem:
 	for item in items:
@@ -123,6 +142,7 @@ func get_only_folders_from_path(all_assets: Array) -> Array:
 	return folders
 
 func refresh_current_path(path: String, all_assets: Array):
+	reset_line_edit()
 	all_assets = all_assets
 	var assets_for_path = AssetDock.get_all_files(path, SETTINGS.file_types)
 	if assets_for_path.size() <= 0:
@@ -220,6 +240,10 @@ func clear_files(skip_back_button: bool = false, clear_tree: bool = false):
 		for current in tree_items:
 			root.remove_child(current)
 
+func reset_line_edit():
+	line_edit.text = ""
+	tree_view_line_edit.text = ""
+
 func clear_old_files():
 	for i in range(grid_container.get_children().size()):
 		var child = grid_container.get_child(i)
@@ -230,16 +254,6 @@ func clear_old_files():
 			elif not button.is_folder and not button.is_back_button: # regular file
 				if not does_file_exist(button.asset_path):
 					button.queue_free()
-	clear_old_folders_from_tree(tree.get_root())
-
-func clear_old_folders_from_tree(section_item: TreeItem):
-	var children = section_item.get_children()
-	for child in children:
-		var folder_path = child.get_metadata(0) as String;
-		if not does_folder_exist(folder_path):
-			section_item.remove_child(child)
-		elif child.get_children().size() > 0:
-			clear_old_folders_from_tree(child)
 
 func create_back_button():
 	back_button = ASSET_BUTTON.instantiate() as AssetButton
@@ -268,6 +282,14 @@ func created_button_for_path(path: String) -> bool:
 			if button.asset_path == path:
 				return true
 	return false
+
+func delete_back_button():
+	for i in range(grid_container.get_children().size()):
+		var child = grid_container.get_child(i)
+		var button = child as AssetButton
+		if button:
+			if button.is_back_button:
+				button.queue_free()
 
 func get_last_path(folder_path: String) -> String:
 	var directory_separator = "/"
@@ -334,3 +356,62 @@ func _on_tree_item_collapsed(item):
 			collapsed_items.erase(item)
 		else:
 			collapsed_items.append(item)
+
+func _on_tree_cell_selected():
+	var selected_folder = tree.get_selected() as TreeItem
+	var folder_path = selected_folder.get_metadata(0) as String
+	create_assets_for_path(folder_path)
+
+func create_assets_for_path(path: String):
+	last_folder_path = path
+	if path != SETTINGS.root_folder_path:
+		delete_back_button()
+		create_back_button()
+	else:
+		delete_back_button()
+	var assets_for_path = AssetDock.get_all_files(path, SETTINGS.file_types)
+	if assets_for_path.size() <= 0:
+		clear_files(true)
+	else:
+		clear_old_files()
+		create_icons(assets_for_path)
+
+func _on_popup_menu_about_to_popup():
+	reset_line_edit()
+	reset_grid(AssetDock.get_all_files(last_folder_path, SETTINGS.file_types))
+
+func _on_tree_view_line_edit_text_changed(new_text: String):
+	var root_item = tree.get_root()
+	var children = root_item.get_children()
+	var current_text = new_text.to_lower()
+	if current_text == "":
+		for child in children:
+			child.visible = true
+			var child_items = child.get_children()
+			for child_child in child_items:
+				child_child.visible = true
+	else:
+		for child in children:
+			var current = child as TreeItem
+			if current.collapsed:
+				current.collapsed = false
+			var tree_item_name = current.get_text(0).to_lower()
+			if current.get_child_count() <= 0 or !has_visiable_child(current):
+				current.visible = false
+			else:
+				var child_items = current.get_children()
+				for child_child in child_items:
+					var tree_child_name = child_child.get_text(0).to_lower()
+					if !tree_child_name.contains(current_text):
+						child_child.visible = false
+
+func has_visiable_child(tree_item: TreeItem) -> bool:
+	if tree_item.get_child_count() > 0:
+		var children = tree_item.get_children()
+		for child in children:
+			var current = child as TreeItem
+			if current.visible:
+				return true
+		return false
+	else:
+		return false
