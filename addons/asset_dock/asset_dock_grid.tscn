@@ -1,7 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://bynipdkw3xf80"]
+[gd_scene load_steps=3 format=3 uid="uid://bynipdkw3xf80"]
 
 [ext_resource type="Script" path="res://addons/asset_dock/asset_dock_grid.gd" id="1_jtjrv"]
-[ext_resource type="PackedScene" uid="uid://b8tf32sp0o253" path="res://addons/asset_dock/gui_elements/create_folder_dialog.tscn" id="2_6kku3"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hec01"]
 bg_color = Color(0.215686, 0.215686, 0.215686, 1)
@@ -83,25 +82,8 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 12
 
-[node name="PopupMenu" type="PopupMenu" parent="HSplitContainer/MainPanel"]
-size = Vector2i(133, 40)
-item_count = 1
-item_0/text = "Create Folder"
-item_0/id = 0
-
-[node name="DeleteConfirmationDialog" type="ConfirmationDialog" parent="."]
-ok_button_text = "Yes"
-dialog_text = "Are you sure wish to delete this asset?"
-
-[node name="CreateFolderDialog" parent="." instance=ExtResource("2_6kku3")]
-visible = false
-
 [connection signal="text_changed" from="HSplitContainer/FileListPanel/VBoxContainer/TreeViewLineEdit" to="." method="_on_tree_view_line_edit_text_changed"]
 [connection signal="cell_selected" from="HSplitContainer/FileListPanel/VBoxContainer/ScrollContainer/Tree" to="." method="_on_tree_cell_selected"]
 [connection signal="tree_exiting" from="HSplitContainer/FileListPanel/VBoxContainer/ScrollContainer/Tree" to="." method="_on_tree_tree_exiting"]
 [connection signal="gui_input" from="HSplitContainer/MainPanel" to="." method="_on_main_panel_gui_input"]
 [connection signal="text_changed" from="HSplitContainer/MainPanel/VBoxContainer/SearchContainer/LineEdit" to="." method="_on_line_edit_text_changed"]
-[connection signal="about_to_popup" from="HSplitContainer/MainPanel/PopupMenu" to="." method="_on_popup_menu_about_to_popup"]
-[connection signal="id_pressed" from="HSplitContainer/MainPanel/PopupMenu" to="." method="_on_popup_menu_id_pressed"]
-[connection signal="confirmed" from="DeleteConfirmationDialog" to="." method="_on_delete_confirmation_dialog_confirmed"]
-[connection signal="create_folder_clicked" from="CreateFolderDialog" to="." method="_on_create_folder_dialog_create_folder_clicked"]

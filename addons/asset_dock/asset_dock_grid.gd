@@ -19,20 +19,15 @@ var created_tree: bool = false
 var root: TreeItem
 var collapsed_items: Array[TreeItem] = []
 var creating_items: bool = false
+var folder_to_rename: String = ""
 
 @onready var grid_container = $HSplitContainer/MainPanel/VBoxContainer/AssetContainer/ScrollContainer/GridContainer
-@onready var popup_menu = $HSplitContainer/MainPanel/PopupMenu
-@onready var create_folder_dialog = $CreateFolderDialog
-@onready var delete_confirmation_dialog = $DeleteConfirmationDialog
 @onready var tree = $HSplitContainer/FileListPanel/VBoxContainer/ScrollContainer/Tree
 @onready var tree_view_line_edit = $HSplitContainer/FileListPanel/VBoxContainer/TreeViewLineEdit
 @onready var line_edit = $HSplitContainer/MainPanel/VBoxContainer/SearchContainer/LineEdit
 
 func _on_main_panel_gui_input(event):
-	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_RIGHT:
-		last_mouse_pos = get_global_mouse_position()
-		popup_menu.popup(Rect2(last_mouse_pos.x, last_mouse_pos.y, popup_menu.size.x, popup_menu.size.y))
-	elif event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
+	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
 		tree.deselect_all()
 		tree.release_focus()
 		tree_view_line_edit.release_focus()
@@ -178,7 +173,6 @@ func create_folder_icon(asset_paths: Array, folder_name: String, folder_path: St
 		asset_button.add_folder_button(FOLDER_BIG_THUMB, folder_name, asset_paths, folder_path)
 		grid_container.add_child(asset_button)
 		asset_button.on_asset_folder_button_clicked.connect(on_folder_button_clicked)
-		asset_button.on_context_menu_click.connect(on_context_menu_click)
 		all_buttons.append(asset_button)
 
 func create_asset_button(path: String, preview: Texture2D, thumbnail: Texture2D, userdata):
@@ -187,29 +181,7 @@ func create_asset_button(path: String, preview: Texture2D, thumbnail: Texture2D,
 		var name = path.get_file()
 		asset_button.add_button(preview, name, path)
 		grid_container.add_child(asset_button)
-		asset_button.on_context_menu_click.connect(on_context_menu_click)
 		all_buttons.append(asset_button)
-		
-func on_context_menu_click(type: AssetButton.CONTEXT_MENU_TYPES, asset_path: String):
-	match (type):
-		AssetButton.CONTEXT_MENU_TYPES.DELETE:
-			delete_asset(asset_path)
-		AssetButton.CONTEXT_MENU_TYPES.RENAME:
-			pass
-		AssetButton.CONTEXT_MENU_TYPES.DUPLICATE:
-			pass
-
-func delete_asset(asset_path: String):
-	current_asset_path = asset_path
-	var message = "Are you sure wish to delete %s?"
-	delete_confirmation_dialog.get_label().text = message % asset_path
-	delete_confirmation_dialog.popup_centered()
-
-func _on_delete_confirmation_dialog_confirmed():
-	OS.move_to_trash(ProjectSettings.globalize_path(current_asset_path))
-	AssetDock.refresh_local_folder = true
-	AssetDock.current_folder_path = last_folder_path
-	AssetDock.editor.get_resource_filesystem().scan() # Refresh file system
 
 func _on_line_edit_text_changed(new_text: String):
 	if new_text.is_empty():
@@ -272,13 +244,13 @@ func create_back_button():
 func on_back_button_press(folder_path: String):
 	if folder_path == SETTINGS.root_folder_path:
 		clear_files()
-		var paths = get_assets_for_path(SETTINGS.root_folder_path, all_paths)
+		var paths = get_assets_for_path(SETTINGS.root_folder_path, AssetDock.get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types))
 		last_folder_path = SETTINGS.root_folder_path
 		create_icons(paths)
 	else:
 		var newpath = get_last_path(folder_path)
 		clear_files()
-		var paths = get_assets_for_path(newpath, all_paths)
+		var paths = get_assets_for_path(newpath, AssetDock.get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types))
 		last_folder_path = newpath
 		if last_folder_path != SETTINGS.root_folder_path:
 			create_back_button()
@@ -338,24 +310,11 @@ func does_file_exist(file_path: String) -> bool:
 				return true
 	return false
 
-func _on_popup_menu_id_pressed(id):
-	match (id):
-		0:
-			create_folder_dialog.popup_centered()
-
-func _on_create_folder_dialog_create_folder_clicked(folder_name):
-	if folder_name == "":
-		printerr("Failed to create folder no name was given")
-		return
-	var path = last_folder_path + "/" + folder_name
-	if !does_folder_exist(path):
-		DirAccess.make_dir_absolute(path)
-		AssetDock.refresh_local_folder = true
-		AssetDock.current_folder_path = last_folder_path
-		AssetDock.editor.get_resource_filesystem().scan() # Refresh file system
-	else:
-		var message = "Failed to create folder at path %s folder already exists"
-		printerr(message % path)
+func refresh_file_system():
+	# Update the UI or any other necessary actions
+	AssetDock.refresh_local_folder = true
+	AssetDock.current_folder_path = last_folder_path
+	AssetDock.editor.get_resource_filesystem().scan() # Refresh file system
 
 func _on_tree_item_collapsed(item):
 	if not creating_items:

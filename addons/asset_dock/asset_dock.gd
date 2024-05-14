@@ -98,7 +98,7 @@ static func get_all_files(path: String, file_ext: Array) -> Array:
 				if has_ext(file_name, file_ext) or file_ext.size() <= 0:
 					files.append(path + "/" + file_name)
 			file_name = dir.get_next()
-		return files
+		return fix_folder_paths(files)
 	else:
 		printerr("An error occurred when trying to access path " + path)
 		return []
@@ -109,3 +109,17 @@ static func has_ext(file_name: String, file_ext: Array) -> bool:
 		if file_name.contains(ext) and !file_name.contains(".import"):
 			result = true
 	return result
+
+static func fix_folder_paths(data: Array) -> Array:
+	var fixed_data: Array = []
+	for item in data:
+		if typeof(item) == TYPE_DICTIONARY:
+			var folder_name = item["folder_name"]
+			folder_name = folder_name.replace("///", "//")
+			var folder_files = item["folder_files"]
+			folder_files = fix_folder_paths(folder_files)
+			fixed_data.append({"folder_name": folder_name, "folder_files": folder_files})
+		else:
+			item = item.replace("///", "//")
+			fixed_data.append(item)
+	return fixed_data
