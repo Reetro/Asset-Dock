@@ -202,9 +202,16 @@ func _on_line_edit_text_changed(new_text: String):
 
 func on_folder_button_clicked(paths: Array, folder_path: String):
 	last_folder_path = folder_path
+	AssetDock.current_folder_path = folder_path
 	clear_files()
 	create_back_button()
 	create_icons(paths)
+
+func has_folder_search() -> bool:
+	return tree_view_line_edit.text != ""
+
+func has_asset_search() -> bool:
+	return line_edit.text != ""
 
 func clear_files(skip_back_button: bool = false, clear_tree: bool = false):
 	all_buttons.clear()
@@ -330,6 +337,7 @@ func _on_tree_cell_selected():
 	create_assets_for_path(folder_path)
 
 func create_assets_for_path(path: String):
+	AssetDock.current_folder_path = path
 	last_folder_path = path
 	if path != SETTINGS.root_folder_path:
 		delete_back_button()
@@ -355,8 +363,19 @@ func _on_tree_view_line_edit_text_changed(new_text: String):
 		show_items(root_item)
 	else:
 		var root_item = tree.get_root()
+		uncollapse_all(root_item)
 		var current_text = new_text.to_lower()
 		hide_non_matching_children(root_item, current_text)
+
+func uncollapse_all(item: TreeItem):
+	# Iterate through the children of the current item
+	for i in range(item.get_child_count()):
+		var child = item.get_child(i)
+		var child_text = child.get_text(0).to_lower()
+		if child.visible:
+			child.collapsed = false
+		# Recursively hide non-matching children of the current child
+		uncollapse_all(child)
 
 func hide_non_matching_children(item: TreeItem, search_text: String):
 	# Iterate through the children of the current item

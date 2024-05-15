@@ -52,7 +52,9 @@ func set_loaded():
 func filesystem_changed():
 	if loaded:
 		if need_to_reload: # I hate this hack so much only I could get it to not trigger multiple times when 1st loaded in
-			if refresh_local_folder:
+			if asset_library_grid.has_asset_search() or asset_library_grid.has_folder_search():
+				return
+			if refresh_local_folder or current_folder_path != "":
 				refresh_local_folder = false
 				var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
 				asset_library_grid.refresh_current_path(current_folder_path, all_assets)
