@@ -1,18 +1,18 @@
 @tool
 extends ConfirmationDialog
 
-signal create_folder_clicked(folder_name: String)
+signal create_collection_clicked(collection_name: String)
 
-var folder_name: String
+var collection_name: String
 
 func _on_confirmed():
-	create_folder_clicked.emit(folder_name)
+	create_collection_clicked.emit(collection_name)
 	$VBoxContainer/LineEdit.set_text("")
 
 func _on_line_edit_text_changed(new_text):
-	folder_name = new_text
+	collection_name = new_text
 
 func _on_line_edit_text_submitted(new_text):
-	create_folder_clicked.emit(new_text)
+	create_collection_clicked.emit(new_text)
 	$VBoxContainer/LineEdit.set_text("")
 	hide()

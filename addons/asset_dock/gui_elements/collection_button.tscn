@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://dp4imdai4ilst"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gbcbu"]
+
+[node name="CollectionButton" type="HBoxContainer"]
+custom_minimum_size = Vector2(0, 40)
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.062
+offset_bottom = -40.176
+grow_horizontal = 2
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = SubResource("StyleBoxEmpty_gbcbu")
+text = "Collection Name"

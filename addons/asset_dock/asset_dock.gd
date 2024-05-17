@@ -105,6 +105,23 @@ static func get_all_files(path: String, file_ext: Array) -> Array:
 		printerr("An error occurred when trying to access path " + path)
 		return []
 
+static func get_all_collection_data() -> Array[CollectionsData]:
+	var dir = DirAccess.open("res://addons/asset_dock/saved_collections/")
+	var result: Array[CollectionsData] = []
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			var full_path = "res://addons/asset_dock/saved_collections/" + file_name
+			if has_ext(file_name, ["tres"]):
+				var resource = ResourceLoader.load(full_path) as CollectionsData
+				result.append(resource)
+			file_name = dir.get_next()
+		return result
+	else:
+		printerr("An error occurred when trying to access collection data failed to load")
+		return result
+
 static func has_ext(file_name: String, file_ext: Array) -> bool:
 	var result = false
 	for ext in file_ext:

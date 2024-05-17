@@ -21,10 +21,10 @@ var collapsed_items: Array[TreeItem] = []
 var creating_items: bool = false
 var folder_to_rename: String = ""
 
-@onready var grid_container = $HSplitContainer/MainPanel/VBoxContainer/AssetContainer/ScrollContainer/GridContainer
-@onready var tree = $HSplitContainer/FileListPanel/VBoxContainer/ScrollContainer/Tree
-@onready var tree_view_line_edit = $HSplitContainer/FileListPanel/VBoxContainer/TreeViewLineEdit
-@onready var line_edit = $HSplitContainer/MainPanel/VBoxContainer/SearchContainer/LineEdit
+@onready var grid_container = $TabContainer/FileSystem/MainPanel/VBoxContainer/AssetContainer/ScrollContainer/GridContainer
+@onready var tree = $TabContainer/FileSystem/FileListPanel/VBoxContainer/ScrollContainer/Tree
+@onready var tree_view_line_edit = $TabContainer/FileSystem/FileListPanel/VBoxContainer/TreeViewLineEdit
+@onready var line_edit = $TabContainer/FileSystem/MainPanel/VBoxContainer/SearchContainer/LineEdit
 
 func _on_main_panel_gui_input(event):
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:

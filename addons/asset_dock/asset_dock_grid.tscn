@@ -1,9 +1,18 @@
-[gd_scene load_steps=3 format=3 uid="uid://bynipdkw3xf80"]
+[gd_scene load_steps=8 format=3 uid="uid://bynipdkw3xf80"]
 
 [ext_resource type="Script" path="res://addons/asset_dock/asset_dock_grid.gd" id="1_jtjrv"]
+[ext_resource type="Script" path="res://addons/asset_dock/collections_panel.gd" id="2_a6ksn"]
+[ext_resource type="PackedScene" uid="uid://b8tf32sp0o253" path="res://addons/asset_dock/gui_elements/create_collection_dialog.tscn" id="3_y83kd"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hgbt8"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_51s81"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hec01"]
 bg_color = Color(0.215686, 0.215686, 0.215686, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uuyls"]
+bg_color = Color(0.117647, 0.117647, 0.117647, 1)
 
 [node name="AssetDockGrid" type="Control"]
 layout_mode = 3
@@ -14,19 +23,29 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_jtjrv")
 
-[node name="HSplitContainer" type="HSplitContainer" parent="."]
+[node name="TabContainer" type="TabContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_hgbt8")
+theme_override_styles/tabbar_background = SubResource("StyleBoxEmpty_51s81")
+tab_alignment = 1
+current_tab = 1
+all_tabs_in_front = true
+tab_focus_mode = 1
 
-[node name="FileListPanel" type="Panel" parent="HSplitContainer"]
+[node name="FileSystem" type="HSplitContainer" parent="TabContainer"]
+visible = false
+layout_mode = 2
+
+[node name="FileListPanel" type="Panel" parent="TabContainer/FileSystem"]
 custom_minimum_size = Vector2(300, 0)
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/FileListPanel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/FileSystem/FileListPanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -34,25 +53,25 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TreeViewLineEdit" type="LineEdit" parent="HSplitContainer/FileListPanel/VBoxContainer"]
+[node name="TreeViewLineEdit" type="LineEdit" parent="TabContainer/FileSystem/FileListPanel/VBoxContainer"]
 layout_mode = 2
 placeholder_text = "Search For Folder"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="HSplitContainer/FileListPanel/VBoxContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="TabContainer/FileSystem/FileListPanel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="Tree" type="Tree" parent="HSplitContainer/FileListPanel/VBoxContainer/ScrollContainer"]
+[node name="Tree" type="Tree" parent="TabContainer/FileSystem/FileListPanel/VBoxContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 allow_search = false
 
-[node name="MainPanel" type="Panel" parent="HSplitContainer"]
+[node name="MainPanel" type="Panel" parent="TabContainer/FileSystem"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_hec01")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="HSplitContainer/MainPanel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/FileSystem/MainPanel"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -60,30 +79,126 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="SearchContainer" type="HBoxContainer" parent="HSplitContainer/MainPanel/VBoxContainer"]
+[node name="SearchContainer" type="HBoxContainer" parent="TabContainer/FileSystem/MainPanel/VBoxContainer"]
 layout_mode = 2
 
-[node name="LineEdit" type="LineEdit" parent="HSplitContainer/MainPanel/VBoxContainer/SearchContainer"]
+[node name="LineEdit" type="LineEdit" parent="TabContainer/FileSystem/MainPanel/VBoxContainer/SearchContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Search For Asset"
 
-[node name="AssetContainer" type="HBoxContainer" parent="HSplitContainer/MainPanel/VBoxContainer"]
+[node name="AssetContainer" type="HBoxContainer" parent="TabContainer/FileSystem/MainPanel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ScrollContainer" type="ScrollContainer" parent="HSplitContainer/MainPanel/VBoxContainer/AssetContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="TabContainer/FileSystem/MainPanel/VBoxContainer/AssetContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="GridContainer" type="GridContainer" parent="HSplitContainer/MainPanel/VBoxContainer/AssetContainer/ScrollContainer"]
+[node name="GridContainer" type="GridContainer" parent="TabContainer/FileSystem/MainPanel/VBoxContainer/AssetContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 columns = 12
 
-[connection signal="text_changed" from="HSplitContainer/FileListPanel/VBoxContainer/TreeViewLineEdit" to="." method="_on_tree_view_line_edit_text_changed"]
-[connection signal="cell_selected" from="HSplitContainer/FileListPanel/VBoxContainer/ScrollContainer/Tree" to="." method="_on_tree_cell_selected"]
-[connection signal="tree_exiting" from="HSplitContainer/FileListPanel/VBoxContainer/ScrollContainer/Tree" to="." method="_on_tree_tree_exiting"]
-[connection signal="gui_input" from="HSplitContainer/MainPanel" to="." method="_on_main_panel_gui_input"]
-[connection signal="text_changed" from="HSplitContainer/MainPanel/VBoxContainer/SearchContainer/LineEdit" to="." method="_on_line_edit_text_changed"]
+[node name="Collections" type="HSplitContainer" parent="TabContainer"]
+layout_mode = 2
+script = ExtResource("2_a6ksn")
+
+[node name="CollectionsListPanel" type="Panel" parent="TabContainer/Collections"]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/Collections/CollectionsListPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CollectionsListLineEdit" type="LineEdit" parent="TabContainer/Collections/CollectionsListPanel/VBoxContainer"]
+layout_mode = 2
+placeholder_text = "Search For Collection"
+
+[node name="AddCollectionsButton" type="Button" parent="TabContainer/Collections/CollectionsListPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 8
+theme_override_styles/normal = SubResource("StyleBoxFlat_uuyls")
+text = "Add Collection
+"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="TabContainer/Collections/CollectionsListPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CollectionListContainer" type="VBoxContainer" parent="TabContainer/Collections/CollectionsListPanel/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="CollectionsMainPanel" type="Panel" parent="TabContainer/Collections"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_hec01")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/Collections/CollectionsMainPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SearchContainer" type="HBoxContainer" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="CollectionsLineEdit" type="LineEdit" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer/SearchContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Search For Asset"
+
+[node name="NameLabelContainer" type="HBoxContainer" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer"]
+visible = false
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer/NameLabelContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+text = "Collection Name Here"
+
+[node name="AssetContainer" type="HBoxContainer" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer/AssetContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer/AssetContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 6
+text = "Drag Asset Here"
+
+[node name="CollectionScrollContainer" type="ScrollContainer" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer/AssetContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CollectionsGridContainer" type="GridContainer" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer/AssetContainer/CollectionScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 12
+
+[node name="CreateCollectionDialog" parent="." instance=ExtResource("3_y83kd")]
+position = Vector2i(0, 36)
+visible = false
+
+[connection signal="text_changed" from="TabContainer/FileSystem/FileListPanel/VBoxContainer/TreeViewLineEdit" to="." method="_on_tree_view_line_edit_text_changed"]
+[connection signal="cell_selected" from="TabContainer/FileSystem/FileListPanel/VBoxContainer/ScrollContainer/Tree" to="." method="_on_tree_cell_selected"]
+[connection signal="tree_exiting" from="TabContainer/FileSystem/FileListPanel/VBoxContainer/ScrollContainer/Tree" to="." method="_on_tree_tree_exiting"]
+[connection signal="gui_input" from="TabContainer/FileSystem/MainPanel" to="." method="_on_main_panel_gui_input"]
+[connection signal="text_changed" from="TabContainer/FileSystem/MainPanel/VBoxContainer/SearchContainer/LineEdit" to="." method="_on_line_edit_text_changed"]
