@@ -8,6 +8,11 @@ const BACK = preload("res://addons/asset_dock/Back.png")
 const SETTINGS = preload("res://addons/asset_dock/settings.tres")
 const FOLDER = preload("res://addons/asset_dock/Folder.svg")
 
+enum TABS {
+	FILESYSTEM,
+	COLLECTIONS
+}
+
 var scene_spawn: String
 var all_paths: Array
 var last_folder_path = SETTINGS.root_folder_path
@@ -25,6 +30,8 @@ var folder_to_rename: String = ""
 @onready var tree = $TabContainer/FileSystem/FileListPanel/VBoxContainer/ScrollContainer/Tree
 @onready var tree_view_line_edit = $TabContainer/FileSystem/FileListPanel/VBoxContainer/TreeViewLineEdit
 @onready var line_edit = $TabContainer/FileSystem/MainPanel/VBoxContainer/SearchContainer/LineEdit
+@onready var tab_container = $TabContainer
+@onready var collections: CollectionsPanel = $TabContainer/Collections
 
 func _on_main_panel_gui_input(event):
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:
@@ -34,10 +41,25 @@ func _on_main_panel_gui_input(event):
 		line_edit.release_focus()
 
 func setup_grid(all_assets: Array, reset_tree_view_name: bool = false):
-	all_paths = all_assets
-	clear_files(false, true)
-	create_icons(all_assets)
-	setup_tree_view(all_assets, reset_tree_view_name)
+	var selected_tab = tab_container.current_tab
+	match (selected_tab):
+		TABS.FILESYSTEM:
+			all_paths = all_assets
+			clear_files(false, true)
+			create_icons(all_assets)
+			setup_tree_view(all_assets, reset_tree_view_name)
+		TABS.COLLECTIONS:
+			collections.setup_collections()
+
+func _on_tab_container_tab_changed(tab: int):
+	match (tab):
+		TABS.FILESYSTEM:
+			all_paths = AssetDock.get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
+			clear_files(false, true)
+			create_icons(all_paths)
+			setup_tree_view(all_paths, true)
+		TABS.COLLECTIONS:
+			collections.setup_collections()
 
 func reset_grid(all_assets: Array):
 	all_paths = all_assets
@@ -59,6 +81,8 @@ func setup_tree_view(all_assets: Array, reset_tree_view_name: bool):
 	create_tree_items(folders, root) # Create the actual tree view
 	
 func create_tree_items(folders: Array, root_item: TreeItem):
+	if tab_container.current_tab == TABS.COLLECTIONS:
+		return
 	creating_items = true
 	for folder in folders: # Create tree view
 		var folder_name = folder["folder_name"].get_file()
@@ -74,6 +98,8 @@ func create_tree_items(folders: Array, root_item: TreeItem):
 	creating_items = false
 
 func update_tree_items(folders: Array, root_item: TreeItem, tree: Tree):
+	if tab_container.current_tab == TABS.COLLECTIONS:
+		return
 	creating_items = true
 	# Track items that are still present in the tree
 	var present_items: Array[TreeItem] = []

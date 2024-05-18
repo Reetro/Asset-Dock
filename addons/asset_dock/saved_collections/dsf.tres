@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CollectionsData" load_steps=2 format=3 uid="uid://ceubho57e24mx"]
+
+[ext_resource type="Script" path="res://addons/asset_dock/collection_data.gd" id="1_1eg58"]
+
+[resource]
+script = ExtResource("1_1eg58")
+collection_name = "dsf"
+collection_items = Array[String]([])

@@ -1,5 +1,6 @@
 @tool
 extends ConfirmationDialog
+class_name CreateCollectionDialog
 
 signal create_collection_clicked(collection_name: String)
 

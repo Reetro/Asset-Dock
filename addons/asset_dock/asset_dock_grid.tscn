@@ -171,12 +171,12 @@ text = "Collection Name Here"
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="HBoxContainer" type="HBoxContainer" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer/AssetContainer"]
+[node name="DragAssetLabelContainer" type="HBoxContainer" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer/AssetContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Label" type="Label" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer/AssetContainer/HBoxContainer"]
+[node name="Label" type="Label" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer/AssetContainer/DragAssetLabelContainer"]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 6
@@ -197,8 +197,11 @@ columns = 12
 position = Vector2i(0, 36)
 visible = false
 
+[connection signal="tab_changed" from="TabContainer" to="." method="_on_tab_container_tab_changed"]
 [connection signal="text_changed" from="TabContainer/FileSystem/FileListPanel/VBoxContainer/TreeViewLineEdit" to="." method="_on_tree_view_line_edit_text_changed"]
 [connection signal="cell_selected" from="TabContainer/FileSystem/FileListPanel/VBoxContainer/ScrollContainer/Tree" to="." method="_on_tree_cell_selected"]
 [connection signal="tree_exiting" from="TabContainer/FileSystem/FileListPanel/VBoxContainer/ScrollContainer/Tree" to="." method="_on_tree_tree_exiting"]
 [connection signal="gui_input" from="TabContainer/FileSystem/MainPanel" to="." method="_on_main_panel_gui_input"]
 [connection signal="text_changed" from="TabContainer/FileSystem/MainPanel/VBoxContainer/SearchContainer/LineEdit" to="." method="_on_line_edit_text_changed"]
+[connection signal="pressed" from="TabContainer/Collections/CollectionsListPanel/VBoxContainer/AddCollectionsButton" to="TabContainer/Collections" method="_on_add_collections_button_pressed"]
+[connection signal="create_collection_clicked" from="CreateCollectionDialog" to="TabContainer/Collections" method="_on_create_collection_dialog_create_collection_clicked"]

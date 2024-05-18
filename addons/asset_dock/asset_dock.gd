@@ -2,10 +2,10 @@
 extends EditorPlugin
 class_name AssetDock
 
-const ASSET_LIBRARY_GRID = preload("res://addons/asset_dock/asset_dock_grid.tscn")
+const ASSET_DOCK_GRID = preload("res://addons/asset_dock/asset_dock_grid.tscn")
 const SETTINGS = preload("res://addons/asset_dock/settings.tres")
 
-var asset_library_grid: AssetDockGrid
+var asset_dock_grid: AssetDockGrid
 static var editor: EditorInterface
 static var preview: EditorResourcePreview
 static var instance: AssetDock
@@ -17,15 +17,15 @@ static var current_folder_path: String
 func _enter_tree():
 	editor = get_editor_interface()
 	preview = editor.get_resource_previewer()
-	asset_library_grid = ASSET_LIBRARY_GRID.instantiate()
+	asset_dock_grid = ASSET_DOCK_GRID.instantiate()
 	SETTINGS.setting_changed.connect(on_settings_changed)
-	add_control_to_bottom_panel(asset_library_grid, "Asset Dock")
+	add_control_to_bottom_panel(asset_dock_grid, "Asset Dock")
 	call_deferred("setup_library") # Need to wait for editor to finish loading before loading asset files
 
 func on_settings_changed():
 	if DirAccess.dir_exists_absolute(SETTINGS.root_folder_path):
 		var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
-		asset_library_grid.setup_grid(all_assets, true)
+		asset_dock_grid.setup_grid(all_assets, true)
 	else:
 		var error = "Failed to load asssets at path %s target path was not found"
 		var fianl = error % SETTINGS.root_folder_path
@@ -34,7 +34,7 @@ func on_settings_changed():
 func setup_library():
 	if DirAccess.dir_exists_absolute(SETTINGS.root_folder_path):
 		var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
-		asset_library_grid.setup_grid(all_assets)
+		asset_dock_grid.setup_grid(all_assets)
 		call_deferred("setup_signals") # Wait to setup these signals to avoid assets getting duplicated on 1st load
 	else:
 		var error = "Failed to load asssets at path %s target path was not found"
@@ -52,15 +52,15 @@ func set_loaded():
 func filesystem_changed():
 	if loaded:
 		if need_to_reload: # I hate this hack so much only I could get it to not trigger multiple times when 1st loaded in
-			if asset_library_grid.has_asset_search() or asset_library_grid.has_folder_search():
+			if asset_dock_grid.has_asset_search() or asset_dock_grid.has_folder_search():
 				return
 			if refresh_local_folder or current_folder_path != "":
 				refresh_local_folder = false
 				var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
-				asset_library_grid.refresh_current_path(current_folder_path, all_assets)
+				asset_dock_grid.refresh_current_path(current_folder_path, all_assets)
 			else:
 				var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
-				asset_library_grid.setup_grid(all_assets)
+				asset_dock_grid.setup_grid(all_assets)
 		else:
 			need_to_reload = true
 
@@ -69,15 +69,15 @@ func resources_reimported(resources: PackedStringArray):
 		if refresh_local_folder:
 			refresh_local_folder = false
 			var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
-			asset_library_grid.refresh_current_path(current_folder_path, all_assets)
+			asset_dock_grid.refresh_current_path(current_folder_path, all_assets)
 		else:
 			var all_assets := get_all_files(SETTINGS.root_folder_path, SETTINGS.file_types)
-			asset_library_grid.setup_grid(all_assets)
+			asset_dock_grid.setup_grid(all_assets)
 
 func _exit_tree():
-	if asset_library_grid:
-		remove_control_from_bottom_panel(asset_library_grid)
-		asset_library_grid.queue_free()
+	if asset_dock_grid:
+		remove_control_from_bottom_panel(asset_dock_grid)
+		asset_dock_grid.queue_free()
 
 static func get_preview(scene: String, receiver: Object, function: StringName) -> void:
 	preview.queue_resource_preview(scene, receiver, function, {})

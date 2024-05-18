@@ -1,4 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://dp4imdai4ilst"]
+[gd_scene load_steps=3 format=3 uid="uid://dp4imdai4ilst"]
+
+[ext_resource type="Script" path="res://addons/asset_dock/gui_elements/collection_button.gd" id="1_mvm6l"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_gbcbu"]
 
@@ -9,9 +11,19 @@ anchor_right = 1.0
 anchor_bottom = 0.062
 offset_bottom = -40.176
 grow_horizontal = 2
+script = ExtResource("1_mvm6l")
 
 [node name="Button" type="Button" parent="."]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/normal = SubResource("StyleBoxEmpty_gbcbu")
 text = "Collection Name"
+
+[node name="PopupMenu" type="PopupMenu" parent="."]
+size = Vector2i(100, 40)
+item_count = 1
+item_0/text = "Delete"
+item_0/id = 0
+
+[connection signal="gui_input" from="Button" to="." method="_on_button_gui_input"]
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
