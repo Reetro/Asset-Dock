@@ -59,7 +59,8 @@ func _on_tab_container_tab_changed(tab: int):
 			create_icons(all_paths)
 			setup_tree_view(all_paths, true)
 		TABS.COLLECTIONS:
-			collections.setup_collections()
+			if collections:
+				collections.setup_collections()
 
 func reset_grid(all_assets: Array):
 	all_paths = all_assets

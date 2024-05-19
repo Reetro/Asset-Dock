@@ -2,18 +2,19 @@
 extends HBoxContainer
 class_name CollectionButton
 
-signal on_collection_selected(asset_paths: Array[String])
+signal on_collection_selected(collection: CollectionsData)
 signal on_delete_pressed(name_of_collection: String)
 
 @onready var popup_menu = $PopupMenu
-var asset_paths: Array[String] = []
 
-func setup(name_to_use: String, asset_paths_to_use: Array[String]):
-	$Button.text = name_to_use
-	asset_paths = asset_paths_to_use
+var my_collection: CollectionsData
+
+func setup(collection: CollectionsData):
+	$Button.text = collection.collection_name
+	my_collection = collection
 	
 func _on_button_pressed():
-	on_collection_selected.emit(asset_paths)
+	on_collection_selected.emit(my_collection)
 
 func _on_button_gui_input(event):
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_RIGHT:

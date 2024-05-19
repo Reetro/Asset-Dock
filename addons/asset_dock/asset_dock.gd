@@ -100,7 +100,8 @@ static func get_all_files(path: String, file_ext: Array) -> Array:
 				if has_ext(file_name, file_ext) or file_ext.size() <= 0:
 					files.append(path + "/" + file_name)
 			file_name = dir.get_next()
-		return fix_folder_paths(files)
+		print(fix_paths(files))
+		return fix_paths(files)
 	else:
 		printerr("An error occurred when trying to access path " + path)
 		return []
@@ -129,16 +130,23 @@ static func has_ext(file_name: String, file_ext: Array) -> bool:
 			result = true
 	return result
 
-static func fix_folder_paths(data: Array) -> Array:
+static func fix_paths(data: Array) -> Array:
 	var fixed_data: Array = []
 	for item in data:
 		if typeof(item) == TYPE_DICTIONARY:
+			# Fix the folder name
 			var folder_name = item["folder_name"]
-			folder_name = folder_name.replace("///", "//")
-			var folder_files = item["folder_files"]
-			folder_files = fix_folder_paths(folder_files)
+			if folder_name.begins_with("res:///"):
+				folder_name = folder_name.replace("res:///", "res://")
+			folder_name = "res://" + folder_name.substr(6, folder_name.length()).replace("//", "/")
+			
+			# Recursively fix the folder files
+			var folder_files = fix_paths(item["folder_files"])
 			fixed_data.append({"folder_name": folder_name, "folder_files": folder_files})
 		else:
-			item = item.replace("///", "//")
+			# Fix individual file path
+			if item.begins_with("res:///"):
+				item = item.replace("res:///", "res://")
+			item = "res://" + item.substr(6, item.length()).replace("//", "/")
 			fixed_data.append(item)
 	return fixed_data

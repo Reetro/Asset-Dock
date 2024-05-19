@@ -1,7 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://bynipdkw3xf80"]
+[gd_scene load_steps=9 format=3 uid="uid://bynipdkw3xf80"]
 
 [ext_resource type="Script" path="res://addons/asset_dock/asset_dock_grid.gd" id="1_jtjrv"]
 [ext_resource type="Script" path="res://addons/asset_dock/collections_panel.gd" id="2_a6ksn"]
+[ext_resource type="Script" path="res://addons/asset_dock/collections_main_panel.gd" id="3_n8m5n"]
 [ext_resource type="PackedScene" uid="uid://b8tf32sp0o253" path="res://addons/asset_dock/gui_elements/create_collection_dialog.tscn" id="3_y83kd"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hgbt8"]
@@ -141,6 +142,7 @@ size_flags_vertical = 3
 [node name="CollectionsMainPanel" type="Panel" parent="TabContainer/Collections"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_hec01")
+script = ExtResource("3_n8m5n")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="TabContainer/Collections/CollectionsMainPanel"]
 layout_mode = 1
@@ -158,25 +160,17 @@ layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Search For Asset"
 
-[node name="NameLabelContainer" type="HBoxContainer" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer"]
-visible = false
-layout_mode = 2
-
-[node name="NameLabel" type="Label" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer/NameLabelContainer"]
-layout_mode = 2
-size_flags_horizontal = 6
-text = "Collection Name Here"
-
 [node name="AssetContainer" type="HBoxContainer" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
 
 [node name="DragAssetLabelContainer" type="HBoxContainer" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer/AssetContainer"]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Label" type="Label" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer/AssetContainer/DragAssetLabelContainer"]
+[node name="DragAssetLabel" type="Label" parent="TabContainer/Collections/CollectionsMainPanel/VBoxContainer/AssetContainer/DragAssetLabelContainer"]
 layout_mode = 2
 size_flags_horizontal = 6
 size_flags_vertical = 6
@@ -204,4 +198,5 @@ visible = false
 [connection signal="gui_input" from="TabContainer/FileSystem/MainPanel" to="." method="_on_main_panel_gui_input"]
 [connection signal="text_changed" from="TabContainer/FileSystem/MainPanel/VBoxContainer/SearchContainer/LineEdit" to="." method="_on_line_edit_text_changed"]
 [connection signal="pressed" from="TabContainer/Collections/CollectionsListPanel/VBoxContainer/AddCollectionsButton" to="TabContainer/Collections" method="_on_add_collections_button_pressed"]
+[connection signal="assets_dropped" from="TabContainer/Collections/CollectionsMainPanel" to="TabContainer/Collections" method="_on_collections_main_panel_assets_dropped"]
 [connection signal="create_collection_clicked" from="CreateCollectionDialog" to="TabContainer/Collections" method="_on_create_collection_dialog_create_collection_clicked"]
