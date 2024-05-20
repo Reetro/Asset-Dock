@@ -32,17 +32,23 @@ func show_drag_label(message: String):
 	drag_asset_label.text = message
 
 func create_list():
-	# Clear current buttons
-	for i in range(collection_list_container.get_child_count()):
-		var current = collection_list_container.get_child(i)
-		current.queue_free()
-	# Create list
+	clear_list()
 	for collection in all_collections:
 		var button = COLLECTION_BUTTON.instantiate() as CollectionButton
 		button.on_delete_pressed.connect(on_delete_collection_pressed)
 		button.setup(collection)
 		button.on_collection_selected.connect(on_collection_button_clicked)
 		collection_list_container.add_child(button)
+
+func clear_list():
+	for i in range(collection_list_container.get_child_count()):
+		var current = collection_list_container.get_child(i)
+		current.queue_free()
+
+func clear_grid():
+	for i in range(collections_grid_container.get_child_count()):
+		var current = collections_grid_container.get_child(i)
+		current.queue_free()
 
 func on_collection_button_clicked(collection: CollectionsData):
 	selected_collection = collection
@@ -55,6 +61,7 @@ func on_delete_collection_pressed(name_of_collection: String):
 func setup_grid():
 	var data_to_use: CollectionsData = selected_collection
 	if data_to_use != null:
+		clear_grid()
 		if data_to_use.collection_items.size() > 0:
 			drag_asset_label_container.visible = false
 			collection_scroll_container.visible = true
@@ -66,7 +73,8 @@ func setup_grid():
 
 func create_icons(asset_paths: Array):
 	for asset_path in asset_paths:
-		AssetDock.get_preview(asset_path, self, "create_asset_button")
+		var string_path = ResourceUID.get_id_path(asset_path)
+		AssetDock.get_preview(string_path, self, "create_asset_button")
 
 func create_asset_button(path: String, preview: Texture2D, thumbnail: Texture2D, userdata):
 	if not created_button_for_path(path):
@@ -104,8 +112,7 @@ func _on_collections_main_panel_assets_dropped(asset_paths):
 	if selected_collection != null:
 		for asset_path in asset_paths:
 			if is_folder(asset_path):
-				var all_assets = AssetDock.get_all_files(asset_path, [])
-				print(all_assets)
+				var all_assets = AssetDock.get_all_files(asset_path, ["import"])
 				for sub_path in all_assets:
 					add_path_to_selected_collection(sub_path)
 			else:
@@ -115,5 +122,6 @@ func _on_collections_main_panel_assets_dropped(asset_paths):
 
 func add_path_to_selected_collection(path: String):
 	if selected_collection:
-		if not selected_collection.collection_items.has(path) and not path.contains(".import"):
-			selected_collection.collection_items.append(path)
+		var uuid = ResourceLoader.get_resource_uid(path)
+		if not selected_collection.collection_items.has(uuid):
+			selected_collection.collection_items.append(uuid)

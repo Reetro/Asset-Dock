@@ -5,4 +5,4 @@
 [resource]
 script = ExtResource("1_8v8jt")
 collection_name = "Test"
-collection_items = Array[String](["res://Test/TokenFrame-Bard-Gold.png", "res://Test/TokenFrame-Bard-Orignal.png", "res://Test/TokenFrame-Bard-Pink.png"])
+collection_items = [892715926941150757, 109493051599789210, 556931443140711219]
