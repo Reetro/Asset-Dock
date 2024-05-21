@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="CollectionsData" load_steps=2 format=3 uid="uid://dnf3d8qldyxq6"]
+
+[ext_resource type="Script" path="res://addons/asset_dock/collection_data.gd" id="1_2cfkc"]
+
+[resource]
+script = ExtResource("1_2cfkc")
+collection_name = "Test3"
+collection_items = Array[int]([])

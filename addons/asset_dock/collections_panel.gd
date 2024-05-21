@@ -13,10 +13,12 @@ const COLLECTION_BUTTON = preload("res://addons/asset_dock/gui_elements/collecti
 @onready var collections_main_panel = $CollectionsMainPanel
 @onready var collection_scroll_container = $CollectionsMainPanel/VBoxContainer/AssetContainer/CollectionScrollContainer
 @onready var collections_grid_container = $CollectionsMainPanel/VBoxContainer/AssetContainer/CollectionScrollContainer/CollectionsGridContainer
+@onready var delete_collection_confirmation_dialog = $"../../DeleteCollectionConfirmationDialog"
 
 var all_collections: Array[CollectionsData]
 var selected_collection: CollectionsData = null
 var all_buttons: Array
+var collection_to_delete: CollectionsData = null
 
 func setup_collections(show_select_message: bool = true):
 	if selected_collection != null:
@@ -46,6 +48,7 @@ func clear_list():
 		current.queue_free()
 
 func clear_grid():
+	all_buttons.clear()
 	for i in range(collections_grid_container.get_child_count()):
 		var current = collections_grid_container.get_child(i)
 		current.queue_free()
@@ -55,8 +58,16 @@ func on_collection_button_clicked(collection: CollectionsData):
 	collections_main_panel.can_drag = true
 	setup_grid()
 
-func on_delete_collection_pressed(name_of_collection: String):
-	pass
+func on_delete_collection_pressed(collection: CollectionsData):
+	collection_to_delete = collection
+	delete_collection_confirmation_dialog.popup_centered()
+
+func _on_delete_collection_confirmation_dialog_confirmed():
+	selected_collection = null
+	collection_scroll_container.visible = false
+	DirAccess.remove_absolute(collection_to_delete.resource_path)
+	AssetDock.editor.get_resource_filesystem().scan() # Refresh file system
+	setup_collections()
 
 func setup_grid():
 	var data_to_use: CollectionsData = selected_collection
@@ -68,6 +79,7 @@ func setup_grid():
 			create_icons(data_to_use.collection_items)
 		else:
 			show_drag_label("Drag Assets Here")
+			collection_scroll_container.visible = false
 	else:
 		printerr("Failed to load collection collection was null")
 
@@ -75,6 +87,9 @@ func create_icons(asset_paths: Array):
 	for asset_path in asset_paths:
 		var string_path = ResourceUID.get_id_path(asset_path)
 		AssetDock.get_preview(string_path, self, "create_asset_button")
+
+func create_icon(asset_path: String):
+	AssetDock.get_preview(asset_path, self, "create_asset_button")
 
 func create_asset_button(path: String, preview: Texture2D, thumbnail: Texture2D, userdata):
 	if not created_button_for_path(path):
@@ -99,14 +114,24 @@ func is_folder(path: String) -> bool:
 	return dir != null
 
 func _on_create_collection_dialog_create_collection_clicked(collection_name: String):
-	# TODO check to see if a file with the same exists 
+	if does_collection_exist(collection_name):
+		printerr("Failed to create collection " + collection_name + " collection already exists")
+		return 
 	var data = CollectionsData.new()
 	data.collection_name = collection_name
 	var path = SAVE_COLLECTION_PATH + collection_name + ".tres"
 	var save_result = ResourceSaver.save(data, path)
 	if save_result != OK:
 		printerr("Failed To Save Data Error Code: " + save_result)
+	selected_collection = null
 	setup_collections()
+
+func does_collection_exist(collection_name: String) -> bool:
+	var collections = AssetDock.get_all_collection_data()
+	for collection in collections:
+		if collection.collection_name == collection_name:
+			return true
+	return false
 
 func _on_collections_main_panel_assets_dropped(asset_paths):
 	if selected_collection != null:
@@ -125,3 +150,4 @@ func add_path_to_selected_collection(path: String):
 		var uuid = ResourceLoader.get_resource_uid(path)
 		if not selected_collection.collection_items.has(uuid):
 			selected_collection.collection_items.append(uuid)
+			create_icon(path)

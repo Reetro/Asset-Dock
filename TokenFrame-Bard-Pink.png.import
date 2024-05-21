@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://h61tx5wqji1x"
-path="res://.godot/imported/TokenFrame-Bard-Pink.png-449a15e1b7dcb4271c0194e262a87770.ctex"
+path="res://.godot/imported/TokenFrame-Bard-Pink.png-caa7fdddd9000776b17036e79797eedf.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Test/TokenFrame-Bard-Pink.png"
-dest_files=["res://.godot/imported/TokenFrame-Bard-Pink.png-449a15e1b7dcb4271c0194e262a87770.ctex"]
+source_file="res://TokenFrame-Bard-Pink.png"
+dest_files=["res://.godot/imported/TokenFrame-Bard-Pink.png-caa7fdddd9000776b17036e79797eedf.ctex"]
 
 [params]
 

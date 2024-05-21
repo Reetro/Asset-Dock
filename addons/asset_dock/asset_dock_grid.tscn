@@ -191,6 +191,11 @@ columns = 12
 position = Vector2i(0, 36)
 visible = false
 
+[node name="DeleteCollectionConfirmationDialog" type="ConfirmationDialog" parent="."]
+title = "Are you sure?"
+ok_button_text = "Yes"
+dialog_text = "Are you wish to delete this collection?"
+
 [connection signal="tab_changed" from="TabContainer" to="." method="_on_tab_container_tab_changed"]
 [connection signal="text_changed" from="TabContainer/FileSystem/FileListPanel/VBoxContainer/TreeViewLineEdit" to="." method="_on_tree_view_line_edit_text_changed"]
 [connection signal="cell_selected" from="TabContainer/FileSystem/FileListPanel/VBoxContainer/ScrollContainer/Tree" to="." method="_on_tree_cell_selected"]
@@ -200,3 +205,4 @@ visible = false
 [connection signal="pressed" from="TabContainer/Collections/CollectionsListPanel/VBoxContainer/AddCollectionsButton" to="TabContainer/Collections" method="_on_add_collections_button_pressed"]
 [connection signal="assets_dropped" from="TabContainer/Collections/CollectionsMainPanel" to="TabContainer/Collections" method="_on_collections_main_panel_assets_dropped"]
 [connection signal="create_collection_clicked" from="CreateCollectionDialog" to="TabContainer/Collections" method="_on_create_collection_dialog_create_collection_clicked"]
+[connection signal="confirmed" from="DeleteCollectionConfirmationDialog" to="TabContainer/Collections" method="_on_delete_collection_confirmation_dialog_confirmed"]

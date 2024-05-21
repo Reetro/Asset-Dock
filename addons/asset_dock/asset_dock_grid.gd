@@ -310,7 +310,10 @@ func get_last_path(folder_path: String) -> String:
 	var parts = folder_path.split(directory_separator)
 	if parts.size() > 1:
 		parts = parts.slice(0, parts.size() - 1)
-	return "/".join(parts)
+	var result = "/".join(parts)
+	if result == "res:/":
+		return "res://"
+	return result
 
 func get_assets_for_path(folder_path: String, asset_paths: Array) -> Array:
 	if folder_path == SETTINGS.root_folder_path:
