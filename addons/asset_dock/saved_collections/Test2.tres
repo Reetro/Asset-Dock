@@ -5,4 +5,4 @@
 [resource]
 script = ExtResource("1_kd51d")
 collection_name = "Test2"
-collection_items = Array[int]([132156867878839518])
+collection_items = Array[int]([])

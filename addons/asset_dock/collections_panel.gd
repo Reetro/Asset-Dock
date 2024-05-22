@@ -88,9 +88,6 @@ func create_icons(asset_paths: Array):
 		var string_path = ResourceUID.get_id_path(asset_path)
 		AssetDock.get_preview(string_path, self, "create_asset_button")
 
-func create_icon(asset_path: String):
-	AssetDock.get_preview(asset_path, self, "create_asset_button")
-
 func create_asset_button(path: String, preview: Texture2D, thumbnail: Texture2D, userdata):
 	if not created_button_for_path(path):
 		var asset_button = ASSET_BUTTON.instantiate() as AssetButton
@@ -142,12 +139,47 @@ func _on_collections_main_panel_assets_dropped(asset_paths):
 					add_path_to_selected_collection(sub_path)
 			else:
 				add_path_to_selected_collection(asset_path)
-		var path = SAVE_COLLECTION_PATH + selected_collection.collection_name + ".tres"
-		ResourceSaver.save(selected_collection, path)
 
 func add_path_to_selected_collection(path: String):
 	if selected_collection:
 		var uuid = ResourceLoader.get_resource_uid(path)
 		if not selected_collection.collection_items.has(uuid):
 			selected_collection.collection_items.append(uuid)
-			create_icon(path)
+			setup_grid()
+			var save_path = SAVE_COLLECTION_PATH + selected_collection.collection_name + ".tres"
+			ResourceSaver.save(selected_collection, save_path)
+		else:
+			printerr("Failed to add asset to collection collection all ready has asset " + path)
+
+func _on_collections_line_edit_text_changed(new_text: String):
+	if selected_collection != null:
+		if new_text != "":
+			var current_text_lowered = new_text.to_lower()
+			for i in range(collections_grid_container.get_child_count()):
+				var button = collections_grid_container.get_child(i) as AssetButton
+				var button_name = button.asset_name as String
+				var name_lowerd = button_name.to_lower()
+				if not name_lowerd.contains(current_text_lowered):
+					button.visible = false
+				else:
+					button.visible = true
+		else:
+			for i in range(collections_grid_container.get_child_count()):
+				var button = collections_grid_container.get_child(i) as AssetButton
+				button.visible = true
+
+func _on_collections_list_line_edit_text_changed(new_text: String):
+	if new_text != "":
+		var current_text_lowered = new_text.to_lower()
+		for i in range(collection_list_container.get_child_count()):
+			var button = collection_list_container.get_child(i) as CollectionButton
+			var button_name = button.my_collection.collection_name as String
+			var name_lowerd = button_name.to_lower()
+			if not name_lowerd.contains(current_text_lowered):
+				button.visible = false
+			else:
+				button.visible = true
+	else:
+		for i in range(collection_list_container.get_child_count()):
+			var button = collection_list_container.get_child(i) as CollectionButton
+			button.visible = true
