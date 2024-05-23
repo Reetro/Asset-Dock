@@ -141,7 +141,9 @@ func _on_remove_from_collection_dialog_confirmed():
 				break
 		if index_remove > -1:
 			collection_to_remove.collection_items.remove_at(index_remove)
-			ResourceSaver.save(collection_to_remove, collection_to_remove.resource_path)
+			var save_result = ResourceSaver.save(collection_to_remove, collection_to_remove.resource_path)
+			if save_result != OK:
+				printerr("Failed To Save Data Error Code: " + save_result)
 			setup_grid()
 		else:
 			printerr("Failed remove " + asset_path_to_remove + " from collection " + collection_to_remove.collection_name + " failed to find item in collection")
