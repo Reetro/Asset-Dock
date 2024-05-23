@@ -13,6 +13,13 @@ enum TABS {
 	COLLECTIONS
 }
 
+@onready var grid_container = $TabContainer/FileSystem/MainPanel/VBoxContainer/AssetContainer/ScrollContainer/GridContainer
+@onready var tree = $TabContainer/FileSystem/FileListPanel/VBoxContainer/ScrollContainer/Tree
+@onready var tree_view_line_edit = $TabContainer/FileSystem/FileListPanel/VBoxContainer/TreeViewLineEdit
+@onready var line_edit = $TabContainer/FileSystem/MainPanel/VBoxContainer/SearchContainer/LineEdit
+@onready var tab_container = $TabContainer
+@onready var collections: CollectionsPanel = $TabContainer/Collections
+
 var scene_spawn: String
 var all_paths: Array
 var last_folder_path = SETTINGS.root_folder_path
@@ -25,13 +32,6 @@ var root: TreeItem
 var collapsed_items: Array[TreeItem] = []
 var creating_items: bool = false
 var folder_to_rename: String = ""
-
-@onready var grid_container = $TabContainer/FileSystem/MainPanel/VBoxContainer/AssetContainer/ScrollContainer/GridContainer
-@onready var tree = $TabContainer/FileSystem/FileListPanel/VBoxContainer/ScrollContainer/Tree
-@onready var tree_view_line_edit = $TabContainer/FileSystem/FileListPanel/VBoxContainer/TreeViewLineEdit
-@onready var line_edit = $TabContainer/FileSystem/MainPanel/VBoxContainer/SearchContainer/LineEdit
-@onready var tab_container = $TabContainer
-@onready var collections: CollectionsPanel = $TabContainer/Collections
 
 func _on_main_panel_gui_input(event):
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_LEFT:

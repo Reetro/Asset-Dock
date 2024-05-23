@@ -2,7 +2,7 @@
 extends HBoxContainer
 class_name CollectionButton
 
-signal on_collection_selected(collection: CollectionsData)
+signal on_collection_selected(collection: CollectionsData, collection_button: Button)
 signal on_delete_pressed(collection: CollectionsData)
 
 @onready var popup_menu = $PopupMenu
@@ -14,7 +14,7 @@ func setup(collection: CollectionsData):
 	my_collection = collection
 	
 func _on_button_pressed():
-	on_collection_selected.emit(my_collection)
+	on_collection_selected.emit(my_collection, $Button)
 
 func _on_button_gui_input(event):
 	if event is InputEventMouseButton and event.is_pressed() and event.button_index == MOUSE_BUTTON_RIGHT:

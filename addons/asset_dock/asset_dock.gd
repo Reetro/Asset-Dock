@@ -79,8 +79,8 @@ func _exit_tree():
 		remove_control_from_bottom_panel(asset_dock_grid)
 		asset_dock_grid.queue_free()
 
-static func get_preview(scene: String, receiver: Object, function: StringName) -> void:
-	preview.queue_resource_preview(scene, receiver, function, {})
+static func get_preview(scene: String, receiver: Object, function: StringName, data = {}) -> void:
+	preview.queue_resource_preview(scene, receiver, function, data)
 
 static func get_all_files(path: String, file_ext: Array) -> Array:
 	var files: Array = []
@@ -100,6 +100,8 @@ static func get_all_files(path: String, file_ext: Array) -> Array:
 				if has_ext(file_name, file_ext) or file_ext.size() <= 0:
 					files.append(path + "/" + file_name)
 			file_name = dir.get_next()
+		if not SETTINGS.show_empty_folders:
+			files = remove_empty_folders(files)
 		return fix_paths(files)
 	else:
 		printerr("An error occurred when trying to access path " + path)
@@ -149,3 +151,14 @@ static func fix_paths(data: Array) -> Array:
 			item = "res://" + item.substr(6, item.length()).replace("//", "/")
 			fixed_data.append(item)
 	return fixed_data
+
+static func remove_empty_folders(data: Array) -> Array:
+	var cleaned_data: Array = []
+	for item in data:
+		if typeof(item) == TYPE_DICTIONARY:
+			item["folder_files"] = remove_empty_folders(item["folder_files"])
+			if item["folder_files"].size() > 0:
+				cleaned_data.append(item)
+		else:
+			cleaned_data.append(item)
+	return cleaned_data
