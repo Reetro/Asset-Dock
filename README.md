@@ -20,18 +20,18 @@ Go to Editor->FileSystem->File Dialog there you can adjust the size of preview t
 By default the root folder is set to res://. I recommend creating a folder called Assets and setting that as the root folder. This way only assets on that folder will be loaded instead of all assets in your project which helps on performance. 
 
 # Collections
-Collections are a way to group a bunch of assets together. To create a collection click on the collections tab. Then click on the add collection button and the collection a name.
+Collections allow you to group multiple assets together. To create a collection, follow these steps: first, click on the "Collections" tab. Then, click the "Add Collection" button and give your new collection a name.
 
 ![create collection](https://github.com/Reetro/Asset-Dock/assets/29167997/8335eedf-47c3-486c-9fcc-750b7759b378)
 
-To add items to a collection click on the collection and drag and drop the files on to the dock. If you drop a folder on to the dock will get all the files from that folder and add them.
+To add items to a collection, click on the desired collection and drag and drop the files onto the dock. If you drop a folder onto the dock, all the files within that folder will be automatically added to the collection.
 
 ![add items](https://github.com/Reetro/Asset-Dock/assets/29167997/c58a7672-f739-45dd-9afd-a96c34fd283e)
 
-To remove items from a collection right click and click remove.
+To remove a item from a collection, right-click on the item and select "Remove."
 
 ![remove item](https://github.com/Reetro/Asset-Dock/assets/29167997/07540cb3-ca85-44ed-b77c-1bc7c1171265)
 
-To delete a collection right click on a collection on the left panel and click delete.
+To delete a collection, right-click on the collection in the left panel and select "Delete."
 
 ![delete collection](https://github.com/Reetro/Asset-Dock/assets/29167997/52f7cc64-6eed-4b84-a597-456a21ac1b7d)
