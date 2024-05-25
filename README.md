@@ -21,10 +21,17 @@ By default the root folder is set to res://. I recommend creating a folder calle
 
 # Collections
 Collections are a way to group a bunch of assets together. To create a collection click on the collections tab. Then click on the add collection button and the collection a name.
+
 ![create collection](https://github.com/Reetro/Asset-Dock/assets/29167997/8335eedf-47c3-486c-9fcc-750b7759b378)
+
 To add items to a collection click on the collection and drag and drop the files on to the dock. If you drop a folder on to the dock will get all the files from that folder and add them.
+
 ![add items](https://github.com/Reetro/Asset-Dock/assets/29167997/c58a7672-f739-45dd-9afd-a96c34fd283e)
+
 To remove items from a collection right click and click remove.
+
 ![remove item](https://github.com/Reetro/Asset-Dock/assets/29167997/07540cb3-ca85-44ed-b77c-1bc7c1171265)
+
 To delete a collection right click on a collection on the left panel and click delete.
+
 ![delete collection](https://github.com/Reetro/Asset-Dock/assets/29167997/52f7cc64-6eed-4b84-a597-456a21ac1b7d)
