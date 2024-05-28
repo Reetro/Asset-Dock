@@ -121,8 +121,9 @@ static func get_all_collection_data() -> Array[CollectionsData]:
 			file_name = dir.get_next()
 		return result
 	else:
-		printerr("An error occurred when trying to access collection data failed to load")
-		return result
+		DirAccess.make_dir_absolute("res://addons/asset_dock/saved_collections/")
+		editor.get_resource_filesystem().scan() # Refresh file system
+		return []
 
 static func has_ext(file_name: String, file_ext: Array) -> bool:
 	var result = false
