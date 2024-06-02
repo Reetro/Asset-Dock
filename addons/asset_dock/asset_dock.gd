@@ -163,3 +163,23 @@ static func remove_empty_folders(data: Array) -> Array:
 		else:
 			cleaned_data.append(item)
 	return cleaned_data
+
+static func edit_path(asset_path: String) -> void:
+	if is_script(asset_path):
+		var resource = ResourceLoader.load(asset_path) as Script
+		editor.edit_script(resource)
+	elif is_scene(asset_path):
+		var resource = ResourceLoader.load(asset_path)
+		editor.edit_resource(resource)
+		editor.open_scene_from_path(asset_path)
+	else:
+		var resource = ResourceLoader.load(asset_path)
+		editor.edit_resource(resource)
+
+static func is_script(asset_path: String) -> bool:
+	var script_extensions = ["gd", "cs", "txt", "md", "json", "xml", "cfg", "ini", "shader", "hlsl", "glsl", "wgsl", "compute"]
+	var extension = asset_path.get_extension()
+	return extension in script_extensions
+
+static func is_scene(asset_path: String) -> bool:
+	return asset_path.get_extension().contains("tscn")

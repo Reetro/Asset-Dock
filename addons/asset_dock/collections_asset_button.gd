@@ -13,6 +13,14 @@ var asset_path: String
 var last_mouse_pos: Vector2
 var my_collection: CollectionsData
 
+func _ready():
+	$Button.connect("gui_input", on_input)
+
+func on_input(event):
+	if event is InputEventMouseButton and event.is_pressed():
+		if event.double_click and event.button_index == MOUSE_BUTTON_LEFT:
+			AssetDock.edit_path(asset_path)
+
 func add_button(icon: Texture, name: String, path: String, collection: CollectionsData):
 	$Button.scene_path = path
 	$Label.text = name

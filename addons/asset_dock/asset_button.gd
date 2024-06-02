@@ -26,7 +26,8 @@ func on_input(event):
 				on_asset_folder_button_clicked.emit(sub_files, asset_path)
 			elif is_back_button:
 				on_back_button_pressed.emit(asset_path)
-		
+			else:
+				AssetDock.edit_path(asset_path)
 
 func add_button(icon: Texture, name: String, path: String):
 	$Button.scene_path = path
